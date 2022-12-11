@@ -41,7 +41,7 @@ class MiniMax(BaseGameModel):
             return arr.index(inde)
         else:
             k = random.randint(1, count)
-            print(k)
+            # print(k)
             count = 0
             out = 0
             for i in arr:
@@ -71,10 +71,10 @@ class MiniMax(BaseGameModel):
                 
                 
                 
-        print(directs)
-        #time.sleep(20)
+        # print(directs)
+        # #time.sleep(20)
         
-        print("\n")
+        # print("\n")
         #return acts[directs.index(max(directs))]
         return acts[self.find_index(directs)]
 
