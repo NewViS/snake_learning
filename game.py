@@ -51,9 +51,9 @@ class Game:
             pygame.time.Clock().tick(fps)
 
             ai_action = self.model.move(self.environment)
-            #self.environment.full_step(ai_action)
-            steyt, _, _=self.environment.full_step(ai_action)
-            print(steyt)
+            self.environment.full_step(ai_action)
+            # steyt, _, _=self.environment.full_step(ai_action)
+            # print(steyt)
 
             if  self.environment.terminal:
                  self.model.reset()
