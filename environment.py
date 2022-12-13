@@ -18,6 +18,7 @@ class Environment:
     snake_length = 1
     snake_action = None
     Terminal = None
+    fruit_eaten = False
 
     def __init__(self, width=Constants.ENV_WIDTH, height=Constants.ENV_HEIGHT):
         self.width = width
@@ -30,8 +31,12 @@ class Environment:
                 self.tiles[y].append(Tile.empty)
 
     def full_step(self, action):
+        global fruit_eaten
+        rst = self.observation()[8]
+
+        fruit_eaten = self.eat_fruit_if_possible()
+        reward = 2 if fruit_eaten else 0
         
-        reward = 2 if self.eat_fruit_if_possible() else 0
         
         terminal = not self.step(action)
         
@@ -40,6 +45,9 @@ class Environment:
             
         self.terminal = terminal
         state = self.observation()
+
+        reward += rst-state[8]
+
         return state, reward, terminal
 
     def step(self, action):

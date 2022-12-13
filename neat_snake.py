@@ -88,7 +88,7 @@ def eval_fitness(genomes,config):
     global pop
     action=Action.all()
     action_66=7 
-    print("00000000000000000000000000000000000000000")
+    
     for g_id,g in genomes:
         if b!=0:
             b.set_fruit()
@@ -98,9 +98,11 @@ def eval_fitness(genomes,config):
         net = neat.nn.FeedForwardNetwork.create(g,config)
         dx = 1
         dy = 0
-        score = 0.0
+        step_score = 1
+        food_score = 0.0
+        score=0
         mindist = state[8]
-        hunger = 100
+        hunger = 200
         fake_reward_pa=0
         error = 0
         countFrames = 0
@@ -110,7 +112,7 @@ def eval_fitness(genomes,config):
         action_66=7 
         foods = 0
 
-        for t in range(1500):
+        for t in range(2000):
             #print("qq1")
             countFrames += 1
             outputs = net.activate(state)
@@ -121,37 +123,37 @@ def eval_fitness(genomes,config):
             action_66=action[direction]
 
             hunger -= 1
-            if countFrames>1:
-                if Action.is_reverse(old_action, action_66) :
-                    score -= 0.25
-                if action_66 != old_action:
-                    circle_check[circle_index % len(circle_check)] = direction
-                    circle_index += 1
-                for i in range(2, len(circle_check)):
+            # if countFrames>1:
+            #     if Action.is_reverse(old_action, action_66) :
+            #         score -= 0.25
+            #     if action_66 != old_action:
+            #         circle_check[circle_index % len(circle_check)] = direction
+            #         circle_index += 1
+            #     for i in range(2, len(circle_check)):
                     
-                    if ((circle_check[i-3] == 0 and
-                        circle_check[i-2] == 1 and
-                        circle_check[i-1] == 2 and
-                        circle_check[i] == 3) or
+            #         if ((circle_check[i-3] == 0 and
+            #             circle_check[i-2] == 1 and
+            #             circle_check[i-1] == 2 and
+            #             circle_check[i] == 3) or
 
-                        (circle_check[i-3] == 3 and
-                        circle_check[i-2] == 2 and
-                        circle_check[i-1] == 1 and
-                        circle_check[i] == 0)):
-                        score -= loop_punishment
-            #print("qq4")
+            #             (circle_check[i-3] == 3 and
+            #             circle_check[i-2] == 2 and
+            #             circle_check[i-1] == 1 and
+            #             circle_check[i] == 0)):
+            #             score -= loop_punishment
+            
             next_state, fake_reward_fu, done = b.full_step(action_66)
-            #print("qq5")
+            
                 
-            if  done:
-                #print("qq6")
+            if  done or hunger==0:
+                
                 break
             else:
-                score += moved_score
+                step_score += 1
             if fake_reward_fu> fake_reward_pa:
-                score += 5
-                hunger += 100
+                food_score += 1
                 foods += 1
+                hunger=200
                 mindist=next_state[8]
                 
 
@@ -160,15 +162,16 @@ def eval_fitness(genomes,config):
             #if state[8]>next_state[8]:
             #    score -= far_food_score
             
-            if mindist>next_state[8]:
-                score += near_food_score
-                mindist = next_state[8]
+            # if mindist>next_state[8]:
+            #     score += near_food_score
+            #     mindist = next_state[8]
 
 
             fake_reward_pa=fake_reward_fu
             state=next_state
             #print("qq7")
-        g.fitness = score/100
+        score=food_score-(step_score/100)
+        g.fitness = score
 
         if not best_instance or g.fitness > best_fitness:
             best_instance = {
@@ -236,7 +239,7 @@ class NEAT_trainer(BaseGameModel):
          # Returns a tuple of line objects, thus the comma
         b=env
         
-        pop.run(eval_fitness, n=10000)
+        pop.run(eval_fitness, n=300)
 
 
 

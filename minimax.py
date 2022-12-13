@@ -28,7 +28,7 @@ class MiniMax(BaseGameModel):
     def move(self, environment):
         global iterate
         iterate = ITER
-        act = self._run(copy.deepcopy(environment))
+        act = self._run2(copy.deepcopy(environment))
         return act
 
     def find_index(self, arr):
@@ -78,20 +78,32 @@ class MiniMax(BaseGameModel):
         #return acts[directs.index(max(directs))]
         return acts[self.find_index(directs)]
 
-
-    # def _run(self, action, environment):
-    #     score = self._random_gameplay(environment, action)
-    #     return score
-
-    # def _random_gameplay(self, environment, action):
-    #     new_action = action
-    #     next_state, reward, terminal = environment.full_step(new_action)
-    #     while terminal:
-    #         print(next_state)
-    #         environment.eat_fruit_if_possible()
-    #         new_action = random.choice(environment.possible_actions_for_current_action(environment.snake_action))
-    #         next_state, reward, terminal = environment.full_step(new_action)
-    #     return environment.reward()
+    def _run2(self, environment):
+        directs = [0, 0, 0]
+        acts = environment.possible_actions_for_current_action(environment.snake_action)
+        for i in range(3):
+            score = [0, 0]
+            env = copy.deepcopy(environment)
+            st, rew, done = env.full_step(acts[i])
+            score = [rew, 1]
+            # directs[i] = score[0]/score[1]
+            if not(done) and not(env.fruit_eaten):   
+                for j in range(10):
+                    ENV = copy.deepcopy(environment)
+                    # score = [0, 0]
+                    for k in range(5):
+                        
+                        st, rew, done = ENV.full_step(random.choice(ENV.possible_actions_for_current_action(ENV.snake_action)))
+                        score[0]+=rew
+                        score[1]+=1
+                        # print(score)
+                        if done or ENV.fruit_eaten:
+                            break
+            
+            directs[i] = score[0]/score[1]
+            # print(score, directs)
+                    
+        return acts[self.find_index(directs)]
 
 while True:
     Game(game_model=MiniMax(),
