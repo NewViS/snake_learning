@@ -35,7 +35,7 @@ class Environment:
         rst = self.observation()[8]
 
         fruit_eaten = self.eat_fruit_if_possible()
-        reward = 2 if fruit_eaten else 0
+        reward = 1 if fruit_eaten else 0
         
         
         terminal = not self.step(action)
@@ -46,9 +46,28 @@ class Environment:
         self.terminal = terminal
         state = self.observation()
 
-        reward += rst-state[8]
+        if not(terminal):   reward += rst-state[8]
 
         return state, reward, terminal
+
+    def full_step_eat(self, action):
+        # rst = self.observation()[8]
+
+        fruit_eaten = self.eat_fruit_if_possible()
+        reward = 1 if fruit_eaten else 0
+        
+        
+        terminal = not self.step(action)
+        
+        if terminal:
+            reward = -1
+            
+        self.terminal = terminal
+        state = self.observation()
+
+        # if not(terminal):   reward += rst-state[8]
+
+        return state, reward, terminal, fruit_eaten
 
     def step(self, action):
         action_all=Action.all()
@@ -60,6 +79,7 @@ class Environment:
         
         head = self.snake[0]
         
+        # print(self.snake_action)
         x, y = self.snake_action
         
         new = Point(x=(head.x + x),
