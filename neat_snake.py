@@ -135,35 +135,42 @@ def eval_fitness(genomes,config):
             
             next_state, fake_reward_fu, done, feat = b.full_step_eat(action_66)
             
-                
-            if  done or hunger==0:
+            if done or hunger == 0:
                 score -= 1
                 break
-            else:
-                step_score += 1
-
-            if feat:
-                time_out = 0
-                if hang_out == 0:
-                    score += 1
-                hunger = 200
-                food_score += 1
-                if (next_state[18]> 10):
-                    hang_out = math.ceil(0.4 * next_state[18]) + 2
-                else:
-                    hang_out = 6
-                
-            if(time_out >= math.ceil(next_state[18] * 0.7 + 10)):
-                score -= 0.5/next_state[18]
-                time_out = 0
             
-            if(hang_out == 0 and fake_reward_fu + fake_reward_pa == 0):
+            if feat:
+                hunger = 200
+                score += 1
+                food_score +=1
+            # if  done or hunger==0:
+            #     score -= 1
+            #     break
+            # else:
+            #     step_score += 1
+
+            # if feat:
+            #     time_out = 0
+            #     if hang_out == 0:
+            #         score += 1
+            #     hunger = 200
+            #     food_score += 1
+            #     if (next_state[18]> 10):
+            #         hang_out = math.ceil(0.4 * next_state[18]) + 2
+            #     else:
+            #         hang_out = 6
                 
-                if state[18]==1:
-                    # score += log((2+state[8])/(2+next_state[8]))/log(2)
-                    score += state[8]-next_state[8]
-                else:
-                    score += log((state[18]+state[8])/(state[18]+next_state[8]))/log(state[18])
+            # if(time_out >= math.ceil(next_state[18] * 0.7 + 10)):
+            #     score -= 0.5/next_state[18]
+            #     time_out = 0
+            
+            # if(hang_out == 0 and fake_reward_fu + fake_reward_pa == 0):
+                
+            #     if state[18]==1:
+            #         # score += log((2+state[8])/(2+next_state[8]))/log(2)
+            #         score += state[8]-next_state[8]
+            #     else:
+            #         score += log((state[18]+state[8])/(state[18]+next_state[8]))/log(state[18])
 
                 
             #if state[8]<next_state[8]:
@@ -192,13 +199,14 @@ def eval_fitness(genomes,config):
                 'genome': g,
                 'net': net,
             }
+            save_best_generation_instance(best_instance)
         best_foods = max(best_foods, food_score)
         best_fitness = max(best_fitness, g.fitness)
         # if debuggin:
         print(f"Generation {generation_number} \tGenome {genome_number} \tFoods {food_score} \tBF {best_foods} \tFitness {g.fitness} \tBest fitness {best_fitness} \tScore {score}")
         genome_number += 1
     print("111111111111111111111111111111111111111")
-    save_best_generation_instance(best_instance)
+    # save_best_generation_instance(best_instance)
     generation_number += 1
 
     if generation_number % 200 == 0:

@@ -189,25 +189,45 @@ class Environment:
                 if minus_x < 0 and minus_y < 0 and distance_from_dl_tail ==0:
                     distance_from_dl_tail =math.hypot(minus_x, minus_y)
 
-        return [self.distance_from_up_wall(),          #0
-        self.distance_from_down_wall(),                #1
-        self.distance_from_left_wall(),                #2
-        self.distance_from_right_wall(),               #3
-        self.distance_from_dr_wall(),                  #4
-        self.distance_from_dl_wall(),                  #5
-        self.distance_from_ur_wall(),                  #6
-        self.distance_from_ul_wall(),                  #7
-        self.distance_from_fruit(),                    #8
-        self._angle_from_fruit()+math.pi,              #9
-        abs(distance_from_right_tail),                 #10
-        abs(distance_from_left_tail),                  #11
-        abs(distance_from_up_tail),                    #12
-        abs(distance_from_down_tail),                  #13
-        abs(distance_from_ur_tail),                    #14
-        abs(distance_from_ul_tail),                    #15
-        abs(distance_from_dr_tail),                    #16
-        abs(distance_from_dl_tail),                    #17
-        self.snake_length]                             #18
+        # return [self.distance_from_up_wall()/10,  #0
+        # self.distance_from_down_wall()/10,        #1
+        # self.distance_from_left_wall()/10,        #2
+        # self.distance_from_right_wall()/10,       #3
+        # self.distance_from_dr_wall()/14.15,          #4
+        # self.distance_from_dl_wall()/14.15,          #5
+        # self.distance_from_ur_wall()/14.15,          #6
+        # self.distance_from_ul_wall()/14.15,          #7
+        # self.distance_from_fruit()/14.15,            #8
+        # (self._angle_from_fruit()+math.pi)/(2*math.pi),      #9
+        # abs(distance_from_right_tail)/10,         #10
+        # abs(distance_from_left_tail)/10,          #11
+        # abs(distance_from_up_tail)/10,            #12
+        # abs(distance_from_down_tail)/10,          #13
+        # abs(distance_from_ur_tail)/14.15,            #14
+        # abs(distance_from_ul_tail)/14.15,            #15
+        # abs(distance_from_dr_tail)/14.15,            #16
+        # abs(distance_from_dl_tail)/14.15,            #17
+        # self.snake_length/50]                     #18
+
+        return [self.distance_from_up_wall(),  #0
+        self.distance_from_down_wall(),        #1
+        self.distance_from_left_wall(),        #2
+        self.distance_from_right_wall(),       #3
+        self.distance_from_dr_wall(),          #4
+        self.distance_from_dl_wall(),          #5
+        self.distance_from_ur_wall(),          #6
+        self.distance_from_ul_wall(),          #7
+        self.distance_from_fruit(),            #8
+        self._angle_from_fruit()+math.pi,      #9
+        abs(distance_from_right_tail),         #10
+        abs(distance_from_left_tail),          #11
+        abs(distance_from_up_tail),            #12
+        abs(distance_from_down_tail),          #13
+        abs(distance_from_ur_tail),            #14
+        abs(distance_from_ul_tail),            #15
+        abs(distance_from_dr_tail),            #16
+        abs(distance_from_dl_tail),            #17
+        self.snake_length]                     #18
 
     def possible_actions_for_current_action(self, current_action):
         actions = Action.all()
