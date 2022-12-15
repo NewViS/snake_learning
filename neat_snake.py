@@ -124,7 +124,7 @@ def eval_fitness(genomes,config):
         for t in range(2000):
             countFrames += 1
             outputs = net.activate(state)
-            print(outputs, max(outputs))
+            # print(outputs, max(outputs))
             direction = outputs.index(max(outputs))
             # old_action=action_66
             action_66=action[direction]
@@ -160,7 +160,8 @@ def eval_fitness(genomes,config):
             if(hang_out == 0 and fake_reward_fu + fake_reward_pa == 0):
                 
                 if state[18]==1:
-                    score += log((2+state[8])/(2+next_state[8]))/log(2)
+                    # score += log((2+state[8])/(2+next_state[8]))/log(2)
+                    score += state[8]-next_state[8]
                 else:
                     score += log((state[18]+state[8])/(state[18]+next_state[8]))/log(state[18])
 
@@ -200,7 +201,7 @@ def eval_fitness(genomes,config):
     save_best_generation_instance(best_instance)
     generation_number += 1
 
-    if generation_number % 20 == 0:
+    if generation_number % 200 == 0:
         print("2222222222222222222222222222222222222")
         save_object(pop, 'trained/population.dat')
         print("Exporting population")
@@ -257,7 +258,7 @@ class NEAT_play(BaseGameModel):
     pth_path= 'checkpoint.pth'
     action_all=Action.all()
     def __init__(self,):
-        BaseGameModel.__init__(self, "dqn", "dqn", "dqn")
+        BaseGameModel.__init__(self, "neat", "dqn", "dqn")
         # self.model = DQN(19, 4).to("cpu")
         # load_model(self.model)
         g = load_object()
