@@ -16,6 +16,7 @@ import sys
 import pickle
 from matplotlib import pyplot as plt
 import neat 
+from math import log
 
 generation_number = 0
 best_foods = 0
@@ -77,8 +78,8 @@ def eval_fitness(genomes,config):
     global moved_score
     global line_best_fitness
     global b
-    circle_check = [-1] * 16
-    circle_index = 0
+    # circle_check = [-1] * 16
+    # circle_index = 0
     if b!=0:
         state = b.observation()
     best_instance = None
@@ -87,76 +88,76 @@ def eval_fitness(genomes,config):
     global generation_number
     global pop
     action=Action.all()
-    action_66=7 
+    # action_66=7 
     
-    for g_id,g in genomes:
+    for g_id, g in genomes:
         if b!=0:
             b.set_fruit()
             b.set_snake()
         state = b.observation()
     
         net = neat.nn.FeedForwardNetwork.create(g,config)
-        dx = 1
-        dy = 0
+        # dx = 1
+        # dy = 0
         step_score = 1
         food_score = 0.0
         score=0
-        mindist = state[8]
+        # mindist = state[8]
         hunger = 200
         fake_reward_pa=0
-        error = 0
+        # error = 0
         countFrames = 0
-        circle_check = [-1] * 16
-        circle_index = 0
-        pastPoints = set()
-        action_66=7 
+        # circle_check = [-1] * 16
+        # circle_index = 0
+        # pastPoints = set()
+        # action_66=7 
         foods = 0
+        time_out = 0
+        hang_out = 0
 
         for t in range(2000):
-            #print("qq1")
             countFrames += 1
             outputs = net.activate(state)
-            #print("qq2")
             direction = outputs.index(max(outputs))
-            #print("qq3")
-            old_action=action_66
+            # old_action=action_66
             action_66=action[direction]
 
             hunger -= 1
-            # if countFrames>1:
-            #     if Action.is_reverse(old_action, action_66) :
-            #         score -= 0.25
-            #     if action_66 != old_action:
-            #         circle_check[circle_index % len(circle_check)] = direction
-            #         circle_index += 1
-            #     for i in range(2, len(circle_check)):
-                    
-            #         if ((circle_check[i-3] == 0 and
-            #             circle_check[i-2] == 1 and
-            #             circle_check[i-1] == 2 and
-            #             circle_check[i] == 3) or
-
-            #             (circle_check[i-3] == 3 and
-            #             circle_check[i-2] == 2 and
-            #             circle_check[i-1] == 1 and
-            #             circle_check[i] == 0)):
-            #             score -= loop_punishment
+            time_out += 1
             
-            next_state, fake_reward_fu, done = b.full_step(action_66)
+            
+            next_state, fake_reward_fu, done, feat = b.full_step_eat(action_66)
             
                 
             if  done or hunger==0:
-                
+                score -= 1
                 break
             else:
                 step_score += 1
-            if fake_reward_fu> fake_reward_pa:
-                food_score += 1
-                foods += 1
-                hunger=200
-                mindist=next_state[8]
-                
 
+            if feat:
+                time_out = 0
+                if hang_out == 0:
+                    score += 1
+                hunger = 200
+                food_score += 1
+                if (next_state[18]> 10):
+                    hang_out = math.ceil(0.4 * next_state[18]) + 2
+                else:
+                    hang_out = 6
+                
+            if(time_out >= math.ceil(next_state[18] * 0.7 + 10)):
+                score -= 0.5/next_state[18]
+                time_out = 0
+            
+            if(hang_out == 0 and fake_reward_fu + fake_reward_pa == 0):
+                
+                if state[18]==1:
+                    score += log((2+state[8])/(2+next_state[8]))/log(2)
+                else:
+                    score += log((state[18]+state[8])/(state[18]+next_state[8]))/log(state[18])
+
+                
             #if state[8]<next_state[8]:
             #    score += near_food_score
             #if state[8]>next_state[8]:
@@ -168,9 +169,11 @@ def eval_fitness(genomes,config):
 
 
             fake_reward_pa=fake_reward_fu
+
             state=next_state
             #print("qq7")
-        score=food_score-(step_score/100)
+        
+        # score=food_score-(step_score/100)
         g.fitness = score
 
         if not best_instance or g.fitness > best_fitness:
@@ -181,10 +184,10 @@ def eval_fitness(genomes,config):
                 'genome': g,
                 'net': net,
             }
-        best_foods = max(best_foods, foods)
+        best_foods = max(best_foods, food_score)
         best_fitness = max(best_fitness, g.fitness)
         # if debuggin:
-        print(f"Generation {generation_number} \tGenome {genome_number} \tFoods {foods} \tBF {best_foods} \tFitness {g.fitness} \tBest fitness {best_fitness} \tScore {score}")
+        print(f"Generation {generation_number} \tGenome {genome_number} \tFoods {food_score} \tBF {best_foods} \tFitness {g.fitness} \tBest fitness {best_fitness} \tScore {score}")
         genome_number += 1
     print("111111111111111111111111111111111111111")
     # save_best_generation_instance(best_instance)
@@ -239,7 +242,7 @@ class NEAT_trainer(BaseGameModel):
          # Returns a tuple of line objects, thus the comma
         b=env
         
-        pop.run(eval_fitness, n=300)
+        pop.run(eval_fitness, n=10000)
 
 
 

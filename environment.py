@@ -189,25 +189,25 @@ class Environment:
                 if minus_x < 0 and minus_y < 0 and distance_from_dl_tail ==0:
                     distance_from_dl_tail =math.hypot(minus_x, minus_y)
 
-        return [self.distance_from_up_wall(),
-        self.distance_from_down_wall(),
-        self.distance_from_left_wall(), 
-        self.distance_from_right_wall(),
-        self.distance_from_dr_wall(),
-        self.distance_from_dl_wall(),
-        self.distance_from_ur_wall(),
-        self.distance_from_ul_wall(),
-        self.distance_from_fruit(), 
-        self._angle_from_fruit()+math.pi,
-        abs(distance_from_right_tail),
-        abs(distance_from_left_tail),
-        abs(distance_from_up_tail),
-        abs(distance_from_down_tail),
-        abs(distance_from_ur_tail),
-        abs(distance_from_ul_tail),
-        abs(distance_from_dr_tail),
-        abs(distance_from_dl_tail),
-        self.snake_length]
+        return [self.distance_from_up_wall(),          #0
+        self.distance_from_down_wall(),                #1
+        self.distance_from_left_wall(),                #2
+        self.distance_from_right_wall(),               #3
+        self.distance_from_dr_wall(),                  #4
+        self.distance_from_dl_wall(),                  #5
+        self.distance_from_ur_wall(),                  #6
+        self.distance_from_ul_wall(),                  #7
+        self.distance_from_fruit(),                    #8
+        self._angle_from_fruit()+math.pi,              #9
+        abs(distance_from_right_tail),                 #10
+        abs(distance_from_left_tail),                  #11
+        abs(distance_from_up_tail),                    #12
+        abs(distance_from_down_tail),                  #13
+        abs(distance_from_ur_tail),                    #14
+        abs(distance_from_ul_tail),                    #15
+        abs(distance_from_dr_tail),                    #16
+        abs(distance_from_dl_tail),                    #17
+        self.snake_length]                             #18
 
     def possible_actions_for_current_action(self, current_action):
         actions = Action.all()
