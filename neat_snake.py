@@ -34,9 +34,15 @@ def save_object(obj, filename):
 
 
 def load_object(filename='trained/best_generation_instances.pickle'):
-    with open(filename, 'rb') as f:
-        obj = pickle.load(f)
+    obj = 0
+    if os.path.getsize(filename)>0:
+        with open(filename, 'rb') as f:
+            obj = pickle.load(f)
     return obj
+
+# def load_object(filename='neat-checkpoint-9999'):
+    # po = neat.Checkpointer.restore_checkpoint("neat-checkpoint-9999")
+
 
 
 local_dir = os.path.dirname(__file__)
@@ -62,11 +68,11 @@ ax = fig.add_subplot(111)
 line_best_fitness, = ax.plot(list_best_fitness, 'r-')
 
 def save_best_generation_instance(instance, filename='trained/best_generation_instances.pickle'):
-    instances = []
+    # instances = []
     # if os.path.isfile(filename):
     #     instances = load_object(filename)
-    instances.append(instance)
-    save_object(instances, filename)
+    # instances.append(instance)
+    save_object(instance, filename)
 
 
 def eval_fitness(genomes,config):
@@ -118,6 +124,7 @@ def eval_fitness(genomes,config):
         for t in range(2000):
             countFrames += 1
             outputs = net.activate(state)
+            print(outputs, max(outputs))
             direction = outputs.index(max(outputs))
             # old_action=action_66
             action_66=action[direction]
@@ -190,7 +197,7 @@ def eval_fitness(genomes,config):
         print(f"Generation {generation_number} \tGenome {genome_number} \tFoods {food_score} \tBF {best_foods} \tFitness {g.fitness} \tBest fitness {best_fitness} \tScore {score}")
         genome_number += 1
     print("111111111111111111111111111111111111111")
-    # save_best_generation_instance(best_instance)
+    save_best_generation_instance(best_instance)
     generation_number += 1
 
     if generation_number % 20 == 0:
@@ -244,6 +251,35 @@ class NEAT_trainer(BaseGameModel):
         
         pop.run(eval_fitness, n=10000)
 
+class NEAT_play(BaseGameModel):
+    state_size=19
+    action_size=4
+    pth_path= 'checkpoint.pth'
+    action_all=Action.all()
+    def __init__(self,):
+        BaseGameModel.__init__(self, "dqn", "dqn", "dqn")
+        # self.model = DQN(19, 4).to("cpu")
+        # load_model(self.model)
+        g = load_object()
+        # g=[(1, g)]
+        # print(g)
+        self.net = neat.nn.FeedForwardNetwork.create(g['genome'], config)
+        
+
+    def move(self, environment):
+        BaseGameModel.move(self, environment)
+        outputs = self.net.activate(environment.observation())
+        direction = outputs.index(max(outputs))
+        # state = environment.observation()
+        # state = torch.tensor(state, dtype=torch.float32, device="cpu").unsqueeze(0)
+        # with torch.no_grad():
+        #     # t.max(1) will return largest column value of each row.
+        #     # second column on max result is index of where max element was
+        #     # found, so we pick action with the larger expected reward.
+        #     vixod = self.model(state).max(1)[1].view(1, 1)
+        # #vixod=self.model.select_action(state=state, epsilon=0, model=self.model.model)
+        # print(vixod)
+        return Action.all()[direction]
 
 
 print(f"Введите режим 0-если обучение, 1-если игра")
@@ -255,7 +291,7 @@ if a==0:
   
 if a==1:
     while True:
-                Game(game_model=DQN_play(),
+                Game(game_model=NEAT_play(),
                     fps=Constants.FPS,
                     pixel_size=Constants.PIXEL_SIZE,
                     screen_width=Constants.SCREEN_WIDTH,
