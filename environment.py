@@ -104,6 +104,7 @@ class Environment:
             if len(self.snake) > self.snake_length:
                 last = self.snake.pop()
                 self.tiles[last.y][last.x] = Tile.empty
+            self._update_frames()
             
             
             return True

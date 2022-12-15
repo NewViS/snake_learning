@@ -218,7 +218,7 @@ if a==0:
             steps += 1
             time_out += 1
             state = torch.from_numpy(state).float().unsqueeze(0)
-            print(state)
+           
             action = select_action(state)
             old_action=action_66
         
