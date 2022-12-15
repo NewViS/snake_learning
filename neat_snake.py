@@ -135,7 +135,7 @@ def eval_fitness(genomes,config):
             
             next_state, fake_reward_fu, done, feat = b.full_step_eat(action_66)
             
-            if done or hunger == 0:
+            if done: #or hunger == 0:
                 score -= 1
                 break
             
@@ -203,7 +203,7 @@ def eval_fitness(genomes,config):
         best_foods = max(best_foods, food_score)
         best_fitness = max(best_fitness, g.fitness)
         # if debuggin:
-        print(f"Generation {generation_number} \tGenome {genome_number} \tFoods {food_score} \tBF {best_foods} \tFitness {g.fitness} \tBest fitness {best_fitness} \tScore {score}")
+        # print(f"Generation {generation_number} \tGenome {genome_number} \tFoods {food_score} \tBF {best_foods} \tFitness {g.fitness} \tBest fitness {best_fitness} \tScore {score}")
         genome_number += 1
     print("111111111111111111111111111111111111111")
     # save_best_generation_instance(best_instance)
