@@ -13,30 +13,28 @@ class Environment:
     snake = []
     fruit = []
     wall = []
+    head = []
 
     snake_moves = 0
     snake_length = 1
     snake_action = None
     Terminal = None
-    fruit_eaten = False
 
     def __init__(self, width=Constants.ENV_WIDTH, height=Constants.ENV_HEIGHT):
         self.width = width
         self.height = height
         self.tiles = []
-        self.frames = []
+        self.frames=[]
+        
+        
         for y in range(0, int(self.height)):
             self.tiles.append([])
             for x in range(0, int(self.width)):
                 self.tiles[y].append(Tile.empty)
 
     def full_step(self, action):
-        global fruit_eaten
-        rst = self.observation()[8]
-
-        fruit_eaten = self.eat_fruit_if_possible()
-        reward = 1 if fruit_eaten else 0
         
+        reward = 1 if self.eat_fruit_if_possible() else 0
         
         terminal = not self.step(action)
         
@@ -45,29 +43,7 @@ class Environment:
             
         self.terminal = terminal
         state = self.observation()
-
-        if not(terminal):   reward += rst-state[8]
-
         return state, reward, terminal
-
-    def full_step_eat(self, action):
-        # rst = self.observation()[8]
-
-        fruit_eaten = self.eat_fruit_if_possible()
-        reward = 1 if fruit_eaten else 0
-        
-        
-        terminal = not self.step(action)
-        
-        if terminal:
-            reward = -1
-            
-        self.terminal = terminal
-        state = self.observation()
-
-        # if not(terminal):   reward += rst-state[8]
-
-        return state, reward, terminal, fruit_eaten
 
     def step(self, action):
         action_all=Action.all()
@@ -79,7 +55,6 @@ class Environment:
         
         head = self.snake[0]
         
-        # print(self.snake_action)
         x, y = self.snake_action
         
         new = Point(x=(head.x + x),
@@ -100,15 +75,19 @@ class Environment:
             
             self.snake.insert(0, new)
             
-            self.tiles[new.y][new.x] = Tile.snake
+            self.tiles[new.y][new.x] = Tile.head
+
             if len(self.snake) > self.snake_length:
                 last = self.snake.pop()
                 self.tiles[last.y][last.x] = Tile.empty
+        
             self._update_frames()
-            
+            self.tiles[new.y][new.x] = Tile.snake
             
             return True
 
+    def state2(self):
+        return np.asarray(self._frames())
     def state(self):
         return np.asarray(self._frames())
 
@@ -120,7 +99,7 @@ class Environment:
         fruit = self.fruit[0]
         x_distance = abs(head.x - fruit.x)
         y_distance = abs(head.y - fruit.y)
-        return math.hypot(x_distance, y_distance)
+        return x_distance + y_distance
 
     def distance_from_up_wall(self):
         head = self.snake[0]
@@ -190,45 +169,25 @@ class Environment:
                 if minus_x < 0 and minus_y < 0 and distance_from_dl_tail ==0:
                     distance_from_dl_tail =math.hypot(minus_x, minus_y)
 
-        # return [self.distance_from_up_wall()/10,  #0
-        # self.distance_from_down_wall()/10,        #1
-        # self.distance_from_left_wall()/10,        #2
-        # self.distance_from_right_wall()/10,       #3
-        # self.distance_from_dr_wall()/14.15,          #4
-        # self.distance_from_dl_wall()/14.15,          #5
-        # self.distance_from_ur_wall()/14.15,          #6
-        # self.distance_from_ul_wall()/14.15,          #7
-        # self.distance_from_fruit()/14.15,            #8
-        # (self._angle_from_fruit()+math.pi)/(2*math.pi),      #9
-        # abs(distance_from_right_tail)/10,         #10
-        # abs(distance_from_left_tail)/10,          #11
-        # abs(distance_from_up_tail)/10,            #12
-        # abs(distance_from_down_tail)/10,          #13
-        # abs(distance_from_ur_tail)/14.15,            #14
-        # abs(distance_from_ul_tail)/14.15,            #15
-        # abs(distance_from_dr_tail)/14.15,            #16
-        # abs(distance_from_dl_tail)/14.15,            #17
-        # self.snake_length/50]                     #18
-
-        return [self.distance_from_up_wall(),  #0
-        self.distance_from_down_wall(),        #1
-        self.distance_from_left_wall(),        #2
-        self.distance_from_right_wall(),       #3
-        self.distance_from_dr_wall(),          #4
-        self.distance_from_dl_wall(),          #5
-        self.distance_from_ur_wall(),          #6
-        self.distance_from_ul_wall(),          #7
-        self.distance_from_fruit(),            #8
-        self._angle_from_fruit()+math.pi,      #9
-        abs(distance_from_right_tail),         #10
-        abs(distance_from_left_tail),          #11
-        abs(distance_from_up_tail),            #12
-        abs(distance_from_down_tail),          #13
-        abs(distance_from_ur_tail),            #14
-        abs(distance_from_ul_tail),            #15
-        abs(distance_from_dr_tail),            #16
-        abs(distance_from_dl_tail),            #17
-        self.snake_length]                     #18
+        return [self.distance_from_up_wall(),
+        self.distance_from_down_wall(),
+        self.distance_from_left_wall(), 
+        self.distance_from_right_wall(),
+        self.distance_from_dr_wall(),
+        self.distance_from_dl_wall(),
+        self.distance_from_ur_wall(),
+        self.distance_from_ul_wall(),
+        self.distance_from_fruit(), 
+        self._angle_from_fruit()+math.pi,
+        abs(distance_from_right_tail),
+        abs(distance_from_left_tail),
+        abs(distance_from_up_tail),
+        abs(distance_from_down_tail),
+        abs(distance_from_ur_tail),
+        abs(distance_from_ul_tail),
+        abs(distance_from_dr_tail),
+        abs(distance_from_dl_tail),
+        self.snake_length]
 
     def possible_actions_for_current_action(self, current_action):
         actions = Action.all()
@@ -272,6 +231,7 @@ class Environment:
         self.snake = self._points_of(Tile.snake)
         self.snake_length = 1
         self.snake_moves = 0
+        self.head=self.snake[0]
         if self.snake_action is None:
             self.snake_action = random.choice(Action.all())
         

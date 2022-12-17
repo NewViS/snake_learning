@@ -54,26 +54,22 @@ class DQN(nn.Module):
 
     def __init__(self, n_observations, n_actions):
         super(DQN, self).__init__()
-        self.layer1 = nn.Linear(n_observations, 32)
-        self.layer2 = nn.Linear(32, 64)
-        self.layer3 = nn.Linear(64, n_actions)
-        self.rl=nn.ReLU(inplace=True)
+        self.layer1 = nn.Linear(n_observations, 128)
+        self.layer2 = nn.Linear(128, 128)
+        self.layer3 = nn.Linear(128, n_actions)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
-        x=self.layer1(x)
-        x=self.rl(x)
-        x=self.layer2(x)
-        x=self.rl(x)
-        x=self.layer3(x)
-        return x
+        x = F.relu(self.layer1(x))
+        x = F.relu(self.layer2(x))
+        return self.layer3(x)
 
 BATCH_SIZE =  128
 GAMMA = 0.99
 EPS_START = 0.9
-EPS_END = 0.05
-EPS_DECAY = 1000
+EPS_END = 0.1
+EPS_DECAY = 10000
 TAU = 0.005
 LR = 1e-4
 
@@ -93,13 +89,17 @@ def select_action(state):
     eps_threshold = EPS_END + (EPS_START - EPS_END) * \
         math.exp(-1. * steps_done / EPS_DECAY)
     steps_done += 1
+    
     if sample > eps_threshold:
         with torch.no_grad():
             # t.max(1) will return largest column value of each row.
             # second column on max result is index of where max element was
             # found, so we pick action with the larger expected reward.
-            return policy_net(state).max(1)[1].view(1, 1)
+            s= policy_net(state).max(1)[1].view(1, 1)
+            
+            return s
     else:
+        
         return torch.tensor([[random.randrange(4)]], device="cpu", dtype=torch.long)
 
 
@@ -172,6 +172,7 @@ class DQN_play(BaseGameModel):
             # second column on max result is index of where max element was
             # found, so we pick action with the larger expected reward.
             vixod = self.model(state).max(1)[1].view(1, 1)
+            print(self.model(state))
         #vixod=self.model.select_action(state=state, epsilon=0, model=self.model.model)
         print(vixod)
         return self.action_all[vixod]
@@ -197,6 +198,7 @@ if a==0:
         max_steps = 650
         reward=0
         hunger=200
+        past_novigation = state[8]
         state = torch.tensor(state, dtype=torch.float32, device="cpu").unsqueeze(0)
         while True and steps < max_steps:
             steps += 1
@@ -206,7 +208,7 @@ if a==0:
             action_66=action_all[action]
             if steps>1:
                 if Action.is_reverse(old_action, action_66) :
-                    reward -=0.6
+                    reward -=0.3
             if action_66 != old_action:
                 circle_check[circle_index % len(circle_check)] = action
                 circle_index += 1
@@ -223,22 +225,26 @@ if a==0:
                             #if fl==0:
                             #   reward -=7500
                             #  fl=1
-                        reward -= 0.6
+                        reward -= 2
             next_state, fake_reward_fu, done = env.full_step(action_66)
             if done and steps<15:
-                reward -=1
+                reward -=1.5
             elif  done:
-                reward-=0.7
+                reward-=1
             hunger-=1
+            reward-=0.01
             if fake_reward_fu> fake_reward_pa:
-                reward+= 2
+                reward+= 5
                 hunger=200        
                 count_fl+=1
             if hunger<0:
-                reward -= 1     
+                reward -= 1
+            
+            reward-=0.1       
             if mindist>next_state[8]:
-                reward += 0.5
+                reward += 2.5
                 mindist = next_state[8]
+            
             reward = torch.tensor([reward],dtype=torch.float32, device="cpu")
             
 

@@ -49,25 +49,30 @@ class ReplayMemory(object):
     def __len__(self):
         return len(self.memory)
 
+def conv_block(in_channels, out_channels, depth=2, pool = False, drop=False, prob=0.2):
+    layers = [nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)]
+    layers.append(nn.ReLU(inplace=True))
+    for i in range(depth-1):
+        layers.append(nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1))
+        layers.append(nn.ReLU(inplace=True))
+    if pool:
+        layers.append(nn.MaxPool2d(2))
+    if drop:
+        layers.append(nn.Dropout2d(p=prob))
+    return nn.Sequential(*layers)
 
-class DQN(nn.Module):
 
-    def __init__(self, n_observations, n_actions):
-        super(DQN, self).__init__()
-        self.layer1 = nn.Linear(n_observations, 32)
-        self.layer2 = nn.Linear(32, 64)
-        self.layer3 = nn.Linear(64, n_actions)
-        self.rl=nn.ReLU(inplace=True)
-
-    # Called with either one element to determine next action, or a batch
-    # during optimization. Returns tensor([[left0exp,right0exp]...]).
-    def forward(self, x):
-        x=self.layer1(x)
-        x=self.rl(x)
-        x=self.layer2(x)
-        x=self.rl(x)
-        x=self.layer3(x)
-        return x
+class ConvNet(nn.Module):
+    def __init__(self,):
+        super().__init__()
+        self.conv1 = conv_block(in_channels=4,out_channels=32, pool=True)
+        self.conv2 = conv_block(in_channels=32,out_channels=64, pool=True)
+        self.fcn = nn.Sequential(nn.AvgPool2d(3), nn.Flatten(), nn.Linear(64, 128), nn.ReLU(inplace=True), nn.Linear(128,4))
+    def forward(self,x):
+        x=self.conv1(x)
+        x=self.conv2(x)
+        x=self.fcn(x)
+        return(x)
 
 BATCH_SIZE =  128
 GAMMA = 0.99
@@ -80,8 +85,8 @@ TRAIN_LIFES = 150000
 TAU = 0.05
 LR =  1e-6
 
-policy_net = DQN(19, 4).to("cpu")
-target_net = DQN(19, 4).to("cpu")
+policy_net = ConvNet()
+target_net = ConvNet()
 target_net.load_state_dict(policy_net.state_dict())
 
 optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
@@ -164,13 +169,13 @@ class DQN_play(BaseGameModel):
     action_all=Action.all()
     def __init__(self,):
         BaseGameModel.__init__(self, "dqn", "dqn", "dqn")
-        self.model = DQN(19, 4).to("cpu")
+        self.model = ConvNet()
         load_model(self.model)
     
 
     def move(self, environment):
         BaseGameModel.move(self, environment)
-        state = environment.observation()
+        state = environment.state()
         state = torch.tensor(state, dtype=torch.float32, device="cpu").unsqueeze(0)
         with torch.no_grad():
             # t.max(1) will return largest column value of each row.
@@ -190,7 +195,8 @@ if a==0:
         # Initialize the environment and get it's state
         env.set_fruit()
         env.set_snake()
-        state = env.observation()
+        observ = env.observation()
+        state = env.state()
         action_all=Action.all()
         fake_reward_pa=0
         count_fl=1
@@ -198,17 +204,20 @@ if a==0:
         circle_check = [-1] * 16
         circle_index = 0
         action_66=7
-        dist=state[8]
-        
+        dist=observ[8]
+        score=0
         max_steps = 650
         reward=0
         time_out = 0
         hunger=200
         hang_out= 0
-        state = torch.tensor(state, dtype=torch.float32, device="cpu").unsqueeze(0)
-        while True and steps < max_steps:
+        
+       
+        
+        while True :
             steps += 1
             time_out += 1
+            state = torch.from_numpy(state).unsqueeze(0)
             action = select_action(state)
             old_action=action_66
         
@@ -233,12 +242,14 @@ if a==0:
             #                 #   reward -=7500
             #                 #  fl=1
             #             reward -= 0.6
-            next_state, fake_reward_fu, done = env.full_step(action_66)
+            next_observ, fake_reward_fu, done,  = env.full_step(action_66)
             # if done and steps<15:
             #     reward -=1
             # elif  done:
             #     reward-=0.7
             # hunger-=1
+            if done:
+                reward= -1
             if fake_reward_fu==1 :
                 time_out = 0
                 if hang_out==0:
@@ -259,10 +270,9 @@ if a==0:
                     size = 2
                 else:
                     size=count_fl
-                reward += math.log(((size) + dist)/((size)+ next_state[8])) / math.log(size)
-            
-            if done:    
-                reward -=1
+                reward += math.log(((size) + dist)/((size)+ next_observ[8])) / math.log(size)   
+				
+			
             # if hunger<0:
             #     reward -= 1     
             # if mindist>next_state[8]:
@@ -272,21 +282,22 @@ if a==0:
                 reward = 1
             elif (reward < -1):
                 reward = -1
+            score += reward
             reward = torch.tensor([reward],dtype=torch.float32, device="cpu")
             
 
             if done:
-                next_state = None
+                next_observ = None
             else:
-                dist=next_state[8]
-                next_state = torch.tensor(next_state, dtype=torch.float32, device="cpu").unsqueeze(0)
+                dist=next_observ[8]
+                next_observ = torch.tensor(next_observ, dtype=torch.float32, device="cpu").unsqueeze(0)
 
             # Store the transition in memory
-            
-            memory.push(state, action, next_state, reward)
+            next_state=torch.from_numpy(env.state()).unsqueeze(0)
+            memory.push(state, action,next_state, reward)
 
             # Move to the next state
-            state = next_state
+            state = env.state()
             
 
             # Perform one step of the optimization (on the policy network)
@@ -294,11 +305,11 @@ if a==0:
 
             # Soft update of the target network's weights
             # θ′ ← τ θ + (1 −τ )θ′
-            target_net_state_dict = target_net.state_dict()
-            policy_net_state_dict = policy_net.state_dict()
-            for key in policy_net_state_dict:
-                target_net_state_dict[key] = policy_net_state_dict[key]*TAU + target_net_state_dict[key]*(1-TAU)
-            target_net.load_state_dict(target_net_state_dict)
+            # target_net_state_dict = target_net.state_dict()
+            # policy_net_state_dict = policy_net.state_dict()
+            # for key in policy_net_state_dict:
+            #     target_net_state_dict[key] = policy_net_state_dict[key]*TAU + target_net_state_dict[key]*(1-TAU)
+            # target_net.load_state_dict(target_net_state_dict)
 
             if done:
                 episode_durations.append(steps + 1)
@@ -306,7 +317,7 @@ if a==0:
                 break
             if(hang_out != 0):
                 hang_out -= 1
-        print(i_episode,count_fl,reward,steps)
+        print(i_episode,count_fl,score,steps)
 
         if i_episode % 1000==0:
             save_model(policy_net)

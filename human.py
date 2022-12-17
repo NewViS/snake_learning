@@ -1,8 +1,7 @@
 from base_game_model import BaseGameModel
 from action import Action
-from constants import Constants
 from pygame.locals import *
-from game import Game
+
 
 class Human(BaseGameModel):
 
@@ -27,11 +26,3 @@ class Human(BaseGameModel):
             self.action = Action.left
         elif event.key == K_RIGHT:
             self.action = Action.right
-
-while True:
-            Game(game_model=Human(),
-                fps=Constants.FPS,
-                pixel_size=Constants.PIXEL_SIZE,
-                screen_width=Constants.SCREEN_WIDTH,
-                screen_height=Constants.SCREEN_HEIGHT+Constants.NAVIGATION_BAR_HEIGHT,
-                navigation_bar_height=Constants.NAVIGATION_BAR_HEIGHT)
