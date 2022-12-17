@@ -9,6 +9,9 @@ from constants import Constants
 
 
 class Environment:
+    fruit_coords = [[5, 7], [4, 3], [1, 3], [4, 7], [8, 2], [1, 6], [1, 8], [9, 3], [1, 2], [8, 5], [6, 5], [10, 8], [2, 3], [7, 8], [8, 8], [2, 6], [2, 7], [3, 3], 
+[2, 9], [3, 5], [3, 1], [3, 2], [8, 9], [5, 10], [3, 10], [1, 5], [9, 6], [9, 4], [7, 4], [6, 1], [3, 6], [4, 2], [8, 3], [4, 4], [7, 10], [2, 8], [9, 10], [4, 8], [6, 9], [4, 10], [5, 1], [5, 2], [5, 3], [1, 7], [5, 5], [5, 6], [5, 8], [6, 3], [1, 1], [1, 4], [10, 4], [6, 2], [5, 4], [6, 4], [4, 5], [6, 6], [6, 7], [10, 6], [2, 10], [6, 10], [2, 1], [7, 2], [3, 7], [2, 2], [7, 5], [7, 6], [7, 3], [3, 4], [4, 1], [2, 4], [8, 1], [1, 10], [4, 6], [8, 4], [9, 2], [9, 5], [8, 7], [5, 9], [10, 10], [8, 10], [9, 1], [10, 3], [10, 7], [8, 6], [7, 7], [4, 9], [9, 7], [9, 8], [9, 9], [3, 9], [10, 1], [10, 2], [3, 8], [1, 9], [10, 5], [7, 9], [6, 8], [2, 5], [10, 9], [7, 1]]
+
 
     snake = []
     fruit = []
@@ -258,10 +261,26 @@ class Environment:
 
     def set_fruit(self):
         self._clear_environment_for(Tile.fruit)
-        random_position = self._random_available_position()
-        self.tiles[random_position.x][random_position.y] = Tile.fruit
-        self.fruit = self._points_of(Tile.fruit)
+        # random_position = self._random_available_position()
+        # self.tiles[random_position.x][random_position.y] = Tile.fruit
+        # self.fruit = self._points_of(Tile.fruit)
         
+        random_position = None
+        tile = None
+        k=0
+        while (tile is None or tile is not Tile.empty) and k<100:
+            random_x = self.fruit_coords[k][0]
+            random_y = self.fruit_coords[k][1]
+            random_position = [random_x, random_y]
+            tile = self.tiles[random_x][random_y]
+            k+=1
+            # if tile is not Tile.empty:
+            #     self.fruit_coords.insert(0, self.fruit_coords.pop(k-1))
+        else:
+            self.fruit_coords.append(self.fruit_coords.pop(k-1))
+        
+        self.tiles[random_position[0]][random_position[1]] = Tile.fruit
+        self.fruit = self._points_of(Tile.fruit)
         return self.fruit
 
     def set_snake(self):
