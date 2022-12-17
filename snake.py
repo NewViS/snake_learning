@@ -4,7 +4,7 @@ from constants import Constants
 from game import Game
 from minimax import MiniMax
 from DQN import DQN,DQN_trainer
-from neat import  NEAT, NEAT_Trainer
+from ga import  NEAT, NEAT_Trainer
 from human import Human
 from hamilton import Hamilton
 

@@ -245,7 +245,7 @@ class Agent:
             fl=0
             time_out = 0
             hang_out= 0
-
+            hunger = 200
             # Играем одну игру до проигрыша, или пока не сделаем
             # максимальное число шагов
             while not done and step < max_steps:
