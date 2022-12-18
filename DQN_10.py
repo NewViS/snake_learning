@@ -248,10 +248,11 @@ class Agent:
             hunger = 200
             # Играем одну игру до проигрыша, или пока не сделаем
             # максимальное число шагов
-            while not done and step < max_steps:
+            while not done and hunger!=0:
                 step += 1
                 time_out += 1
-                print(state)
+                hunger-=1
+                
                 # Считаем epsilon для e-greedy police
                 epsilon = (self.max_epsilon - self.min_epsilon) * (1 - epoch / self.epochs)
 
@@ -260,23 +261,13 @@ class Agent:
                 old_action=action_66
                 action_66=action_all[action_choise]
                 next_observ, fake_reward_fu, done = self.env.full_step(action_66)
-                if done:
-                    reward= -1
-                if fake_reward_fu==1 :
-                    time_out = 0
-                    if hang_out==0:
-                        reward=1
-                    hunger=200        
-                    count_fl+=1
-                    if (count_fl> 10):
-                        hang_out = math.ceil(0.4 * count_fl) + 2
-                    else:
-                        hang_out = 6
+                
+                
             
                 if(time_out >= math.ceil(count_fl * 0.7 + 10)):
                     reward -= 0.5/count_fl
                     time_out = 0
-                if(hang_out == 0 and fake_reward_fu + fake_reward_pa == 0):
+                if(fake_reward_fu + fake_reward_pa == 0):
                 
                     if count_fl==1:
                         size = 2
@@ -284,6 +275,19 @@ class Agent:
                         size=count_fl
                     reward += math.log(((size) + dist)/((size)+ next_observ[8])) / math.log(size)   
 				
+                if fake_reward_fu==1 :
+                    time_out = 0
+                   
+                    reward=1
+                    hunger=200        
+                    count_fl+=1
+                    # if (count_fl> 10):
+                    #     hang_out = math.ceil(0.4 * count_fl) + 2
+                    # else:
+                    #     hang_out = 6
+
+                if done or hunger==0:
+                    reward= -1
 			
             # if hunger<0:
             #     reward -= 1     
@@ -451,10 +455,10 @@ if a==0:
     agent = Agent(
     env=model.prepare_training_environment(),
     file_name='snake_7.2',
-    max_epsilon=0,
+    max_epsilon=1,
     min_epsilon=0,
     target_update=20,
-    epochs=200000,
+    epochs=2**15,
     batch_size=16,
     memory_size=8000)
     agent.load_model()
