@@ -2,7 +2,7 @@ import torch
 import os
 from time import sleep
 from tqdm import tqdm
-import gym
+# import gym
 import torch.optim as optim
 import torch.nn as nn
 import torch.nn.functional as f
@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import math
 from copy import deepcopy
-from torchvision import transforms
+# from torchvision import transforms
 from random import random, randint, sample,choice
 from base_game_model import BaseGameModel
 from action import Action
@@ -255,7 +255,11 @@ class Agent:
                 
                 # Считаем epsilon для e-greedy police
                 epsilon = (self.max_epsilon - self.min_epsilon) * (1 - epoch / self.epochs)
-
+                # if self.env.snake_length < 15:
+                #     epsilon = 0.0001
+                # else:
+                #     epsilon = (self.max_epsilon - self.min_epsilon) * (1 - epoch / self.epochs)
+                # epsilon = self.max_epsilon * math.exp(-epoch)
                 # Выбираем действие с помощью e-greedy police
                 action_choise = self.action_choice(state, epsilon, self.model)
                 old_action=action_66
@@ -458,7 +462,7 @@ if a==0:
     max_epsilon=1,
     min_epsilon=0,
     target_update=20,
-    epochs=2**15,
+    epochs=500000,
     batch_size=16,
     memory_size=8000)
     agent.load_model()
