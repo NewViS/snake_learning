@@ -24,6 +24,7 @@ def main(genomes, config):
     ge = []
     snakes = []
     apples = []
+    move_count = []
     game_model= BaseGameModel("neat_trainer", "neat_trainer", "neat_trainer")
     env=game_model.prepare_training_environment()
     global HIGH_SCORE
@@ -37,28 +38,33 @@ def main(genomes, config):
         snakes.append(env.set_snake())
         apples.append(env.set_fruit())
         ge.append(g)
+        move_count.append(0)
     action=Action.all()
     while True:
-        
+        print(HIGH_SCORE)
 
         # Give the outputs to the NN
         for i, snake in enumerate(snakes):
             output = nets[i].activate(env.observation())
-            action_66=action[output]
-            env.snake=snake        
-            snake.move_count += 1
+            
+            action_66=action[output.index(max(output))]
+            env.snake=snake
+            env.snake_length=len(snake)
+            next_state, fake_reward_fu, done = env.full_step(action_66)        
+            move_count[i] += 1
             HIGH_SCORE = max(HIGH_SCORE, env.snake_length)
         # Eat apple
-            if snake.head == [apples[i].x, apples[i].y]:
+            if fake_reward_fu:
                 ge[i].fitness += 20
-                snake.move_count =  0
+                move_count[i] =  0
             # Collision
-            if snake.collide() or snake.move_count >= 120:
-                ge[i].fitness -= (10 + snake.move_count//10)
+            if done  or move_count[i] >= 120:
+                ge[i].fitness -= (10 + move_count[i]//10)
                 snakes.pop(i)
                 nets.pop(i)
                 ge.pop(i)
                 apples.pop(i)
+                move_count.pop(i)
         if len(snakes) == 0:
             break
         
@@ -70,7 +76,8 @@ def run(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    winner = p.run(main, 10)
+    p.add_reporter(neat.Checkpointer(50, ))
+    winner = p.run(main, 10000)
 
     
 

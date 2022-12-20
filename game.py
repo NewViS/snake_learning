@@ -54,11 +54,10 @@ class Game:
         while True:
             self._handle_user_input()
             pygame.time.Clock().tick(fps)
-            step-=1
+            
             ai_action = self.model.move(self.environment)
             self.environment.full_step(ai_action)
-            if  self.environment.terminal or step==0:
-                 step=200
+            if  self.environment.terminal :
                  self.model.reset()
                  self.environment.set_fruit()
                  self.environment.set_snake()
