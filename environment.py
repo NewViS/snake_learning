@@ -121,11 +121,13 @@ class Environment:
             
             self.snake.insert(0, new)
             
-            self.tiles[new.y][new.x] = Tile.snake
+            self.tiles[new.y][new.x] = Tile.head
+            # self.tiles[new.y][new.x] = Tile.snake
             if len(self.snake) > self.snake_length:
                 last = self.snake.pop()
                 self.tiles[last.y][last.x] = Tile.empty
             self._update_frames()
+            self.tiles[new.y][new.x] = Tile.snake
             
             
             return True

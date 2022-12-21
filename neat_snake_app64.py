@@ -53,11 +53,11 @@ config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
 
 
 pop = neat.Population(config)
-# pop = neat.Checkpointer.restore_checkpoint('neat-checkpoint-1450')
+# pop = neat.Checkpointer.restore_checkpoint('neat-checkpoint-377')
 pop.add_reporter(neat.StdOutReporter(True))
 stats = neat.StatisticsReporter()
 pop.add_reporter(stats)
-pop.add_reporter(neat.Checkpointer(1000))
+pop.add_reporter(neat.Checkpointer(10000))
 
 
 
@@ -113,7 +113,7 @@ def eval_fitness(genome, config):
     foods = 0
     time_out = 0
     hang_out = 0
-    count_fl = 1
+    count_fl = 0
     reward = 0
     outputs = None
 
@@ -134,16 +134,16 @@ def eval_fitness(genome, config):
         
         
 
-        if(time_out >= math.ceil(count_fl * 0.7 + 10)):
-            reward -= 0.5/count_fl
-            time_out = 0
-        if(fake_reward_fu + fake_reward_pa == 0):
+        # if(time_out >= math.ceil(count_fl * 0.7 + 10)):
+        #     reward -= 0.5/count_fl
+        #     time_out = 0
+        # if(fake_reward_fu + fake_reward_pa == 0):
         
-            if count_fl==1:
-                size = 2
-            else:
-                size=count_fl
-            reward += math.log(((size) + state[8])/((size)+ next_state[8])) / math.log(size)   
+        #     if count_fl==1:
+        #         size = 2
+        #     else:
+        #         size=count_fl
+        #     reward += math.log(((size) + state[8])/((size)+ next_state[8])) / math.log(size)   
 
         if fake_reward_fu==1 :
             time_out = 0
@@ -157,13 +157,13 @@ def eval_fitness(genome, config):
             score += reward
             break
 
-        if(reward > 1):
-            reward = 1
-        elif (reward < -1):
-            reward = -1
+        # if(reward > 1):
+        #     reward = 1
+        # elif (reward < -1):
+        #     reward = -1
         
         fake_reward_pa=fake_reward_fu
-        score += reward
+        # score += reward
         state=next_state
 
         best_foods = max(best_foods, count_fl)
@@ -187,7 +187,7 @@ def eval_fitness(genome, config):
     # if debuggin:
     # print(f"Generation {generation_number} \tGenome {genome_number} \tFoods {food_score} \tBF {best_foods} \tFitness {g.fitness} \tBest fitness {best_fitness} \tScore {score}")
     genome_number += 1
-    return score
+    return countFrames + 100*count_fl
 
 
 # save_best_generation_instance(best_instance)
@@ -247,7 +247,10 @@ class NEAT_trainer(BaseGameModel):
          # Returns a tuple of line objects, thus the comma
         b=env
         
-        best_genome = pop.run(eval_genomes, n=10000)
+        best_evolution = pop.run(eval_genomes, 1000)
+        
+
+        
 
 class NEAT_play(BaseGameModel):
     state_size=10

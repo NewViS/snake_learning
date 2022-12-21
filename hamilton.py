@@ -2,6 +2,8 @@ from point import Point
 from node import Node
 from base_game_model import BaseGameModel
 from longest_path import LongestPathSolver
+from game import Game
+from constants import Constants
 
 
 class Hamilton(BaseGameModel):

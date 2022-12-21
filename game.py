@@ -1,6 +1,6 @@
 import pygame
 import sys
-from objects import SnakeScreenObject, FruitScreenObject, WallScreenObject
+from objects import SnakeScreenObject, FruitScreenObject, WallScreenObject, HeadScreenObject
 from pygame.locals import *
 from point import Point
 from color import Color
@@ -42,8 +42,12 @@ class Game:
         self.screen_objects.append(self.fruit)
 
         self.snake = SnakeScreenObject(self)
-        self.snake.points = list(map(lambda x: self._screen_normalized_point(x), self.environment.set_snake()))
+        # self.snake.points = list(map(lambda x: self._screen_normalized_point(x), self.environment.set_snake()))
         self.screen_objects.append(self.snake)
+        # 
+        self.head = HeadScreenObject(self)
+        self.head.points = list(map(lambda x: self._screen_normalized_point(x), self.environment.set_snake()))
+        self.screen_objects.append(self.head)
         self.model = game_model
 
         while True:
@@ -90,7 +94,12 @@ class Game:
 
     def _sync_screen_with_environment(self):
         self.fruit.points = list(map(lambda x: self._screen_normalized_point(x), self.environment.fruit))
-        self.snake.points = list(map(lambda x: self._screen_normalized_point(x), self.environment.snake))
+        if(self.environment.snake_length>1):
+            self.snake.points = list(map(lambda x: self._screen_normalized_point(x), self.environment.snake[1::]))
+        else:
+            self.snake.points=[]
+        # print(self.environment.snake)
+        self.head.points = list(map(lambda x: self._screen_normalized_point(x), [self.environment.snake[0]]))
 
     def _display(self):
         pygame.display.flip()
