@@ -186,6 +186,21 @@ class Environment:
         distance= min(self.distance_from_down_wall(),self.distance_from_left_wall())
         return distance/math.cos(math.pi/4)
 
+    def distance_from_ur_wall_mh(self):
+        # distance= min(self.distance_from_up_wall(),self.distance_from_right_wall())
+        # return distance/math.cos(math.pi/4)
+        return self.distance_from_up_wall() + self.distance_from_right_wall()
+
+    def distance_from_ul_wall_mh(self):
+        return self.distance_from_up_wall() + self.distance_from_left_wall()
+
+    def distance_from_dr_wall_mh(self):
+        return self.distance_from_down_wall() + self.distance_from_right_wall()
+
+    def distance_from_dl_wall_mh(self):
+        return self.distance_from_down_wall() + self.distance_from_left_wall()
+
+
     def observation(self):
         head = self.snake[0]
         distance_from_left_tail=0
@@ -261,35 +276,35 @@ class Environment:
 
     def observation2(self):
         head = self.snake[0]
-        distance_from_left_tail=-1
-        distance_from_right_tail=-1
-        distance_from_up_tail=-1
-        distance_from_down_tail=-1
-        # distance_from_ul_tail= 0
-        # distance_from_ur_tail= 0
-        # distance_from_dl_tail= 0
-        # distance_from_dr_tail = 0
+        distance_from_left_tail=11
+        distance_from_right_tail=11
+        distance_from_up_tail=11
+        distance_from_down_tail=11
+        distance_from_ul_tail= 21
+        distance_from_ur_tail= 21
+        distance_from_dl_tail= 21
+        distance_from_dr_tail= 21
         for i in range(1,self.snake_length):
 
             minus_x=head.x - self.snake[i].x
             minus_y=head.y - self.snake[i].y
-            if head.y==self.snake[i].y and minus_x < 0 and (distance_from_right_tail==-1 or abs(minus_x) < distance_from_right_tail):
+            if head.y==self.snake[i].y and minus_x < 0 and (distance_from_right_tail==11 or abs(minus_x) < distance_from_right_tail):
                 distance_from_right_tail= abs(minus_x)
-            if head.y==self.snake[i].y and minus_x > 0 and  (distance_from_left_tail==-1 or abs(minus_x) < distance_from_left_tail):
+            if head.y==self.snake[i].y and minus_x > 0 and  (distance_from_left_tail==11 or abs(minus_x) < distance_from_left_tail):
                 distance_from_left_tail = abs(minus_x)
-            if head.x==self.snake[i].x and minus_y < 0 and  (distance_from_up_tail ==-1 or abs(minus_y) < distance_from_up_tail):
+            if head.x==self.snake[i].x and minus_y < 0 and  (distance_from_up_tail ==11 or abs(minus_y) < distance_from_up_tail):
                 distance_from_up_tail = abs(minus_y)
-            if head.x==self.snake[i].x and minus_y> 0 and  (distance_from_down_tail==-1 or abs(minus_y) < distance_from_down_tail):
+            if head.x==self.snake[i].x and minus_y> 0 and  (distance_from_down_tail==11 or abs(minus_y) < distance_from_down_tail):
                 distance_from_down_tail = abs(minus_y)
-            # if abs(minus_x)==abs(minus_y):
-            #     if minus_x >0 and minus_y >0 and distance_from_ur_tail ==0:
-            #         distance_from_ur_tail =math.hypot(minus_x, minus_y)
-            #     if minus_x <0 and minus_y >0 and distance_from_ul_tail ==0:
-            #         distance_from_ul_tail =math.hypot(minus_x, minus_y)
-            #     if minus_x >0 and minus_y <0 and distance_from_dr_tail ==0:
-            #         distance_from_dr_tail =math.hypot(minus_x, minus_y)
-            #     if minus_x < 0 and minus_y < 0 and distance_from_dl_tail ==0:
-            #         distance_from_dl_tail =math.hypot(minus_x, minus_y)
+            if abs(minus_x)==abs(minus_y):
+                if minus_x >0 and minus_y >0 and (distance_from_ur_tail ==21 or abs(minus_x)+abs(minus_y) < distance_from_ur_tail):
+                    distance_from_ur_tail =abs(minus_x) + abs(minus_y)
+                if minus_x <0 and minus_y >0 and (distance_from_ul_tail ==21 or abs(minus_x)+abs(minus_y) < distance_from_ul_tail):
+                    distance_from_ul_tail =abs(minus_x) + abs(minus_y)
+                if minus_x >0 and minus_y <0 and (distance_from_dr_tail ==21 or abs(minus_x)+abs(minus_y) < distance_from_dr_tail):
+                    distance_from_dr_tail =abs(minus_x) + abs(minus_y)
+                if minus_x < 0 and minus_y < 0 and (distance_from_dl_tail ==21 or abs(minus_x)+abs(minus_y) < distance_from_dl_tail):
+                    distance_from_dl_tail =abs(minus_x) + abs(minus_y)
 
         # return [self.distance_from_up_wall()/10,  #0
         # self.distance_from_down_wall()/10,        #1
@@ -315,22 +330,22 @@ class Environment:
         self.distance_from_down_wall()/10,        #1
         self.distance_from_left_wall()/10,        #2
         self.distance_from_right_wall()/10,       #3
-        # self.distance_from_dr_wall(),          #4
-        # self.distance_from_dl_wall(),          #5
-        # self.distance_from_ur_wall(),          #6
-        # self.distance_from_ul_wall(),          #7
-        self.distance_from_fruit_mh()/20,            #4
-        self._angle_from_fruit()+math.pi/(2*math.pi),      #5
-        abs(distance_from_right_tail)/10,         #6
-        abs(distance_from_left_tail)/10,          #7
-        abs(distance_from_up_tail)/10,            #8
-        abs(distance_from_down_tail)/10          #9
-        # abs(distance_from_ur_tail),            #14
-        # abs(distance_from_ul_tail),            #15
-        # abs(distance_from_dr_tail),            #16
-        # abs(distance_from_dl_tail),            #17
-        # self.snake_length]                     #18
-        ]
+        self.distance_from_dr_wall_mh()/20,          #4
+        self.distance_from_dl_wall_mh()/20,          #5
+        self.distance_from_ur_wall_mh()/20,          #6
+        self.distance_from_ul_wall_mh()/20,          #7
+        self.distance_from_fruit_mh()/20,            #8
+        self._angle_from_fruit()+math.pi/(2*math.pi),      #9
+        abs(distance_from_right_tail)/11,         #10
+        abs(distance_from_left_tail)/11,          #11
+        abs(distance_from_up_tail)/11,            #12
+        abs(distance_from_down_tail)/11,         #13
+        abs(distance_from_ur_tail)/21,            #14
+        abs(distance_from_ul_tail)/21,            #15
+        abs(distance_from_dr_tail)/21,            #16
+        abs(distance_from_dl_tail)/21,            #17
+        self.snake_length/40]                     #18
+        
 
     def possible_actions_for_current_action(self, current_action):
         actions = Action.all()

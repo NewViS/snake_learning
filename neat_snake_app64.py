@@ -53,11 +53,11 @@ config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
 
 
 pop = neat.Population(config)
-# pop = neat.Checkpointer.restore_checkpoint('neat-checkpoint-699')
+# pop = neat.Checkpointer.restore_checkpoint('neat-checkpoint-1450')
 pop.add_reporter(neat.StdOutReporter(True))
 stats = neat.StatisticsReporter()
 pop.add_reporter(stats)
-pop.add_reporter(neat.Checkpointer(100))
+pop.add_reporter(neat.Checkpointer(1000))
 
 
 
@@ -75,9 +75,9 @@ def save_best_generation_instance(instance, filename='trained/best_generation_in
     save_object(instance, filename)
 
 
-def eval_fitness(genomes, config):
+def eval_fitness(genome, config):
     global best_foods
-    best_foods = 0
+    # best_foods = 0
     global best_fitness 
     global loop_punishment 
     global near_food_score 
@@ -88,7 +88,7 @@ def eval_fitness(genomes, config):
     # circle_check = [-1] * 16
     # circle_index = 0
     if b!=0:
-        state = b.observation()
+        state = b.observation2()
     best_instance = None
     genome_number = 0
 
@@ -97,120 +97,120 @@ def eval_fitness(genomes, config):
     action=Action.all()
     # action_66=7 
     
-    for g_id, g in genomes:
-        if b!=0:
-            b.set_fruit()
-            b.set_snake()
-        state = b.observation2()
     
-        net = neat.nn.FeedForwardNetwork.create(g,config)
-        step_score = 1
-        food_score = 0.0
-        score=0
-        hunger = 200
-        fake_reward_pa=0
-        countFrames = 0
-        foods = 0
-        time_out = 0
-        hang_out = 0
-        count_fl = 1
-        reward = 0
-        outputs = None
-
-        for t in range(2000):
-            countFrames += 1
-            outputs = net.activate(state)
-            # print(outputs)
-            # print(outputs, max(outputs))
-            direction = outputs.index(max(outputs))
-            # old_action=action_66
-            action_66=action[direction]
-
-            hunger -= 1
-            time_out += 1
-            
-            
-            next_state, fake_reward_fu, done, feat = b.full_step_neat(action_66)
-            
-            if feat:
-                count_fl+=1
-
-            if(time_out >= math.ceil(count_fl * 0.7 + 10)):
-                reward -= 0.5/count_fl
-                time_out = 0
-            if(fake_reward_fu + fake_reward_pa == 0):
-            
-                if count_fl==1:
-                    size = 2
-                else:
-                    size=count_fl
-                reward += math.log(((size) + state[4])/((size)+ next_state[4])) / math.log(size)   
+    if b!=0:
+        b.set_fruit()
+        b.set_snake()
+    state = b.observation2()
     
-            if fake_reward_fu==1 :
-                time_out = 0
+    net = neat.nn.FeedForwardNetwork.create(genome,config)
+    step_score = 1
+    food_score = 0.0
+    score=0
+    hunger = 200
+    fake_reward_pa=0
+    countFrames = 0
+    foods = 0
+    time_out = 0
+    hang_out = 0
+    count_fl = 1
+    reward = 0
+    outputs = None
 
-                reward=1
-                hunger=200        
-                count_fl+=1
-                   
-            if done or hunger==0:
-                reward= -1
-                score += reward
-                break
-    
-            if(reward > 1):
-                reward = 1
-            elif (reward < -1):
-                reward = -1
-            
-            fake_reward_pa=fake_reward_fu
-            score += reward
-            state=next_state
+    for t in range(2000):
+        countFrames += 1
+        outputs = net.activate(state)
+        # print(outputs)
+        # print(outputs, max(outputs))
+        direction = outputs.index(max(outputs))
+        # old_action=action_66
+        action_66=action[direction]
 
-            best_foods = max(best_foods, count_fl)
-            #print("qq7")
+        hunger -= 1
+        time_out += 1
         
-        # score=food_score-(step_score/100)
-        g.fitness = score
-        print(outputs)
-        if not best_instance or g.fitness > best_fitness:
-            best_instance = {
-                'num_generation': generation_number,
-                'fitness': g.fitness,
-                'score': score,
-                'genome': g,
-                'net': net,
-            }
-            save_best_generation_instance(best_instance)
-        # best_foods = max(best_foods, count_fl)
-        best_fitness = max(best_fitness, g.fitness)
-        # if debuggin:
-        # print(f"Generation {generation_number} \tGenome {genome_number} \tFoods {food_score} \tBF {best_foods} \tFitness {g.fitness} \tBest fitness {best_fitness} \tScore {score}")
-        genome_number += 1
-    print("111111111111111111111111111111111111111")
-    print(best_foods)
-    print("111111111111111111111111111111111111111")
-    # save_best_generation_instance(best_instance)
-    generation_number += 1
+        
+        next_state, fake_reward_fu, done, feat = b.full_step_neat(action_66)
+        
+        
 
-    if generation_number % 200 == 0:
-        # print("2222222222222222222222222222222222222")
-        save_object(pop, 'trained/population.dat')
-        print("Exporting population")
-        # export population
-        # save_object(pop,'population.dat')
-        # export population
-    # print("3333333333333333333333333333333333333333333333333333")
-    global list_best_fitness
-    global fig
-    list_best_fitness.append(best_fitness)
-    line_best_fitness.set_ydata(np.array(list_best_fitness))
-    line_best_fitness.set_xdata(list(range(len(list_best_fitness))))
-    plt.xlim(0, len(list_best_fitness)-1)
-    plt.ylim(0, max(list_best_fitness)+0.5)
-    fig.canvas.draw()
-    fig.canvas.flush_events()
-    # print("444444444444444444444444444444444444444444444444444")
+        if(time_out >= math.ceil(count_fl * 0.7 + 10)):
+            reward -= 0.5/count_fl
+            time_out = 0
+        if(fake_reward_fu + fake_reward_pa == 0):
+        
+            if count_fl==1:
+                size = 2
+            else:
+                size=count_fl
+            reward += math.log(((size) + state[8])/((size)+ next_state[8])) / math.log(size)   
+
+        if fake_reward_fu==1 :
+            time_out = 0
+
+            reward=1
+            hunger=200        
+            count_fl+=1
+                
+        if done or hunger==0:
+            reward= -1
+            score += reward
+            break
+
+        if(reward > 1):
+            reward = 1
+        elif (reward < -1):
+            reward = -1
+        
+        fake_reward_pa=fake_reward_fu
+        score += reward
+        state=next_state
+
+        best_foods = max(best_foods, count_fl)
+        #print("qq7")
+    
+    # score=food_score-(step_score/100)
+    
+    
+    #print(outputs)
+    if not best_instance or score > best_fitness:
+        best_instance = {
+            'num_generation': generation_number,
+            'fitness': score,
+            'score': score,
+            'genome': genome,
+            'net': net,
+        }
+        save_best_generation_instance(best_instance)
+    # best_foods = max(best_foods, count_fl)
+    best_fitness = max(best_fitness, score)
+    # if debuggin:
+    # print(f"Generation {generation_number} \tGenome {genome_number} \tFoods {food_score} \tBF {best_foods} \tFitness {g.fitness} \tBest fitness {best_fitness} \tScore {score}")
+    genome_number += 1
+    return score
+
+
+# save_best_generation_instance(best_instance)
+generation_number += 1
+
+if generation_number % 200 == 0:
+    # print("2222222222222222222222222222222222222")
+    save_object(pop, 'trained/population.dat')
+    print("Exporting population")
+    # export population
+    # save_object(pop,'population.dat')
+    # export population
+# print("3333333333333333333333333333333333333333333333333333")
+# global list_best_fitness
+# global fig
+list_best_fitness.append(best_fitness)
+line_best_fitness.set_ydata(np.array(list_best_fitness))
+line_best_fitness.set_xdata(list(range(len(list_best_fitness))))
+plt.xlim(0, len(list_best_fitness)-1)
+plt.ylim(0, max(list_best_fitness)+0.5)
+fig.canvas.draw()
+fig.canvas.flush_events()
+# print("444444444444444444444444444444444444444444444444444")
 def eval_genomes(genomes, config):
     """
     The function to evaluate the fitness of each genome in 
@@ -221,9 +221,14 @@ def eval_genomes(genomes, config):
         config:  The configuration settings with algorithm
                  hyper-parameters
     """
+    global best_foods
+    best_foods = 0
     for genome_id, genome in genomes:
         
         genome.fitness = eval_fitness( genome, config)
+    print("111111111111111111111111111111111111111")
+    print(best_foods)
+    print("111111111111111111111111111111111111111")
 
 
 
@@ -242,7 +247,7 @@ class NEAT_trainer(BaseGameModel):
          # Returns a tuple of line objects, thus the comma
         b=env
         
-        pop.run(eval_fitness, n=10000)
+        best_genome = pop.run(eval_genomes, n=10000)
 
 class NEAT_play(BaseGameModel):
     state_size=10
