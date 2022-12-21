@@ -22,6 +22,9 @@ class SnakeScreenObject(ScreenObject):
     def __init__(self, game):
         ScreenObject.__init__(self, game, Color.green)
 
+class HeadScreenObject(ScreenObject):
+    def __init__(self, game):
+        ScreenObject.__init__(self, game, Color.blue)
 
 class WallScreenObject(ScreenObject):
     def __init__(self, game):

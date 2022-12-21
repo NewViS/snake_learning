@@ -9,7 +9,7 @@ class Constants:
     CHECKPOINT_NAME = "model.ckpt"
     MODEL_DIRECTORY = "./tf_models/"
     NAVIGATION_BAR_HEIGHT = 30
-    FPS = 15
+    FPS = 10
     PIXEL_SIZE = 25
     SCREEN_WIDTH = 300
     SCREEN_HEIGHT = 300
@@ -17,4 +17,3 @@ class Constants:
     SCREEN_DEPTH = 32
     ENV_HEIGHT = SCREEN_HEIGHT/PIXEL_SIZE
     ENV_WIDTH = SCREEN_WIDTH/PIXEL_SIZE
-

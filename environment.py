@@ -1,7 +1,6 @@
 import random
 import math
 import numpy as np
-from collections import deque
 from point import Point
 from action import Action
 from tile import Tile
@@ -9,6 +8,8 @@ from constants import Constants
 
 
 class Environment:
+    fruit_coords = [[5, 7], [4, 3], [1, 3], [4, 7], [8, 2], [1, 6], [1, 8], [9, 3], [1, 2], [8, 5], [6, 5], [10, 8], [2, 3], [7, 8], [8, 8], [2, 6], [2, 7], [3, 3], 
+[2, 9], [3, 5], [3, 1], [3, 2], [8, 9], [5, 10], [3, 10], [1, 5], [9, 6], [9, 4], [7, 4], [6, 1], [3, 6], [4, 2], [8, 3], [4, 4], [7, 10], [2, 8], [9, 10], [4, 8], [6, 9], [4, 10], [5, 1], [5, 2], [5, 3], [1, 7], [5, 5], [5, 6], [5, 8], [6, 3], [1, 1], [1, 4], [10, 4], [6, 2], [5, 4], [6, 4], [4, 5], [6, 6], [6, 7], [10, 6], [2, 10], [6, 10], [2, 1], [7, 2], [3, 7], [2, 2], [7, 5], [7, 6], [7, 3], [3, 4], [4, 1], [2, 4], [8, 1], [1, 10], [4, 6], [8, 4], [9, 2], [9, 5], [8, 7], [5, 9], [10, 10], [8, 10], [9, 1], [10, 3], [10, 7], [8, 6], [7, 7], [4, 9], [9, 7], [9, 8], [9, 9], [3, 9], [10, 1], [10, 2], [3, 8], [1, 9], [10, 5], [7, 9], [6, 8], [2, 5], [10, 9], [7, 1]]
 
     snake = []
     fruit = []
@@ -50,12 +51,10 @@ class Environment:
 
         return state, reward, terminal
 
-    def full_step_eat(self, action):
-        # rst = self.observation()[8]
+    def full_step_neat(self, action):
 
         fruit_eaten = self.eat_fruit_if_possible()
         reward = 1 if fruit_eaten else 0
-        
         
         terminal = not self.step(action)
         
@@ -63,9 +62,7 @@ class Environment:
             reward = -1
             
         self.terminal = terminal
-        state = self.observation()
-
-        # if not(terminal):   reward += rst-state[8]
+        state = self.observation2()
 
         return state, reward, terminal, fruit_eaten
 
@@ -79,7 +76,6 @@ class Environment:
         
         head = self.snake[0]
         
-        # print(self.snake_action)
         x, y = self.snake_action
         
         new = Point(x=(head.x + x),
@@ -94,19 +90,17 @@ class Environment:
             self.snake_length=1
             return False
         else:
-
             
             self.snake_moves += 1
             
             self.snake.insert(0, new)
-            
-            self.tiles[new.y][new.x] = Tile.snake
+            self.tiles[new.y][new.x] = Tile.head
+            # self.tiles[new.y][new.x] = Tile.snake
             if len(self.snake) > self.snake_length:
                 last = self.snake.pop()
                 self.tiles[last.y][last.x] = Tile.empty
             self._update_frames()
-            
-            
+            self.tiles[new.y][new.x] = Tile.snake
             return True
 
     def state(self):
@@ -121,6 +115,13 @@ class Environment:
         x_distance = abs(head.x - fruit.x)
         y_distance = abs(head.y - fruit.y)
         return math.hypot(x_distance, y_distance)
+
+    def distance_from_fruit_mh(self):
+        head = self.snake[0]
+        fruit = self.fruit[0]
+        x_distance = abs(head.x - fruit.x)
+        y_distance = abs(head.y - fruit.y)
+        return x_distance + y_distance
 
     def distance_from_up_wall(self):
         head = self.snake[0]
@@ -158,7 +159,20 @@ class Environment:
         distance= min(self.distance_from_down_wall(),self.distance_from_left_wall())
         return distance/math.cos(math.pi/4)
 
-    def observation(self,):
+    def distance_from_ur_wall_mh(self):
+        return self.distance_from_up_wall() + self.distance_from_right_wall()
+
+    def distance_from_ul_wall_mh(self):
+        return self.distance_from_up_wall() + self.distance_from_left_wall()
+
+    def distance_from_dr_wall_mh(self):
+        return self.distance_from_down_wall() + self.distance_from_right_wall()
+
+    def distance_from_dl_wall_mh(self):
+        return self.distance_from_down_wall() + self.distance_from_left_wall()
+
+
+    def observation(self):
         head = self.snake[0]
         distance_from_left_tail=0
         distance_from_right_tail=0
@@ -190,26 +204,6 @@ class Environment:
                 if minus_x < 0 and minus_y < 0 and distance_from_dl_tail ==0:
                     distance_from_dl_tail =math.hypot(minus_x, minus_y)
 
-        # return [self.distance_from_up_wall()/10,  #0
-        # self.distance_from_down_wall()/10,        #1
-        # self.distance_from_left_wall()/10,        #2
-        # self.distance_from_right_wall()/10,       #3
-        # self.distance_from_dr_wall()/14.15,          #4
-        # self.distance_from_dl_wall()/14.15,          #5
-        # self.distance_from_ur_wall()/14.15,          #6
-        # self.distance_from_ul_wall()/14.15,          #7
-        # self.distance_from_fruit()/14.15,            #8
-        # (self._angle_from_fruit()+math.pi)/(2*math.pi),      #9
-        # abs(distance_from_right_tail)/10,         #10
-        # abs(distance_from_left_tail)/10,          #11
-        # abs(distance_from_up_tail)/10,            #12
-        # abs(distance_from_down_tail)/10,          #13
-        # abs(distance_from_ur_tail)/14.15,            #14
-        # abs(distance_from_ul_tail)/14.15,            #15
-        # abs(distance_from_dr_tail)/14.15,            #16
-        # abs(distance_from_dl_tail)/14.15,            #17
-        # self.snake_length/50]                     #18
-
         return [self.distance_from_up_wall(),  #0
         self.distance_from_down_wall(),        #1
         self.distance_from_left_wall(),        #2
@@ -229,6 +223,60 @@ class Environment:
         abs(distance_from_dr_tail),            #16
         abs(distance_from_dl_tail),            #17
         self.snake_length]                     #18
+
+
+    def observation2(self):
+        head = self.snake[0]
+        distance_from_left_tail=11
+        distance_from_right_tail=11
+        distance_from_up_tail=11
+        distance_from_down_tail=11
+        distance_from_ul_tail= 21
+        distance_from_ur_tail= 21
+        distance_from_dl_tail= 21
+        distance_from_dr_tail= 21
+        for i in range(1,self.snake_length):
+
+            minus_x=head.x - self.snake[i].x
+            minus_y=head.y - self.snake[i].y
+            if head.y==self.snake[i].y and minus_x < 0 and (distance_from_right_tail==11 or abs(minus_x) < distance_from_right_tail):
+                distance_from_right_tail= abs(minus_x)
+            if head.y==self.snake[i].y and minus_x > 0 and  (distance_from_left_tail==11 or abs(minus_x) < distance_from_left_tail):
+                distance_from_left_tail = abs(minus_x)
+            if head.x==self.snake[i].x and minus_y < 0 and  (distance_from_up_tail ==11 or abs(minus_y) < distance_from_up_tail):
+                distance_from_up_tail = abs(minus_y)
+            if head.x==self.snake[i].x and minus_y> 0 and  (distance_from_down_tail==11 or abs(minus_y) < distance_from_down_tail):
+                distance_from_down_tail = abs(minus_y)
+            if abs(minus_x)==abs(minus_y):
+                if minus_x >0 and minus_y >0 and (distance_from_ur_tail ==21 or abs(minus_x)+abs(minus_y) < distance_from_ur_tail):
+                    distance_from_ur_tail =abs(minus_x) + abs(minus_y)
+                if minus_x <0 and minus_y >0 and (distance_from_ul_tail ==21 or abs(minus_x)+abs(minus_y) < distance_from_ul_tail):
+                    distance_from_ul_tail =abs(minus_x) + abs(minus_y)
+                if minus_x >0 and minus_y <0 and (distance_from_dr_tail ==21 or abs(minus_x)+abs(minus_y) < distance_from_dr_tail):
+                    distance_from_dr_tail =abs(minus_x) + abs(minus_y)
+                if minus_x < 0 and minus_y < 0 and (distance_from_dl_tail ==21 or abs(minus_x)+abs(minus_y) < distance_from_dl_tail):
+                    distance_from_dl_tail =abs(minus_x) + abs(minus_y)
+
+        return [self.distance_from_up_wall()/10,            #0
+        self.distance_from_down_wall()/10,                  #1
+        self.distance_from_left_wall()/10,                  #2
+        self.distance_from_right_wall()/10,                 #3
+        self.distance_from_dr_wall_mh()/20,                 #4
+        self.distance_from_dl_wall_mh()/20,                 #5
+        self.distance_from_ur_wall_mh()/20,                 #6
+        self.distance_from_ul_wall_mh()/20,                 #7
+        self.distance_from_fruit_mh()/20,                   #8
+        self._angle_from_fruit()+math.pi/(2*math.pi),       #9
+        abs(distance_from_right_tail)/11,                   #10
+        abs(distance_from_left_tail)/11,                    #11
+        abs(distance_from_up_tail)/11,                      #12
+        abs(distance_from_down_tail)/11,                    #13
+        abs(distance_from_ur_tail)/21,                      #14
+        abs(distance_from_ul_tail)/21,                      #15
+        abs(distance_from_dr_tail)/21,                      #16
+        abs(distance_from_dl_tail)/21,                      #17
+        self.snake_length/40]                               #18
+        
 
     def possible_actions_for_current_action(self, current_action):
         actions = Action.all()
@@ -258,8 +306,25 @@ class Environment:
 
     def set_fruit(self):
         self._clear_environment_for(Tile.fruit)
-        random_position = self._random_available_position()
-        self.tiles[random_position.x][random_position.y] = Tile.fruit
+        # random_position = self._random_available_position()
+        # self.tiles[random_position.x][random_position.y] = Tile.fruit
+        # self.fruit = self._points_of(Tile.fruit)
+        
+        random_position = None                      #последовательные фрукты для обучения
+        tile = None                                 #изначальные выше в 3 строки
+        k=0
+        while (tile is None or tile is not Tile.empty) and k<100:
+            random_x = self.fruit_coords[k][0]
+            random_y = self.fruit_coords[k][1]
+            random_position = [random_x, random_y]
+            tile = self.tiles[random_x][random_y]
+            k+=1
+            # if tile is not Tile.empty:
+            #     self.fruit_coords.insert(0, self.fruit_coords.pop(k-1))
+        else:
+            self.fruit_coords.append(self.fruit_coords.pop(k-1))
+        
+        self.tiles[random_position[0]][random_position[1]] = Tile.fruit
         self.fruit = self._points_of(Tile.fruit)
         
         return self.fruit
