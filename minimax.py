@@ -4,19 +4,12 @@ from game import Game
 from constants import Constants
 from base_game_model import BaseGameModel
 
-ITER = 300
-act = []
-iterate = 0
-envs_q = []
-
 class MiniMax(BaseGameModel):
 
     def __init__(self):
         BaseGameModel.__init__(self, "Monte Carlo", "monte_carlo", "mc")
 
     def move(self, environment):                           #correct move
-        global iterate
-        iterate = ITER
         act = self._run2(copy.deepcopy(environment))
         return act
 

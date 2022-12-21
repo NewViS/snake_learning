@@ -20,7 +20,7 @@ class Hamilton(BaseGameModel):
             return environment.snake_action
 
         hamilton_path = self._hamilton_path(environment)
-
+        
         for index in range(0, len(hamilton_path)):
             node = hamilton_path[index]
             next_index = index + 1
