@@ -15,6 +15,12 @@ class Environment:
     fruit = []
     wall = []
 
+    output_plot = open("out.csv", 'w')
+    output_arr = []
+    probs = 10
+    steps_plots = 0
+    max_fru = 0
+
     snake_moves = 0
     snake_length = 1
     snake_action = None
@@ -33,6 +39,7 @@ class Environment:
 
     def full_step(self, action):
         global fruit_eaten
+        self.steps_plots += 1
         rst = self.observation()[8]
 
         fruit_eaten = self.eat_fruit_if_possible()
@@ -40,9 +47,24 @@ class Environment:
         
         
         terminal = not self.step(action)
+        self.max_fru = max(self.max_fru, self.snake_length)
         
+        if not(terminal):
+            if(len(self.output_arr)<self.steps_plots):
+                self.output_arr.append([self.snake_length])
+            else:
+                self.output_arr[self.steps_plots-1].append(self.snake_length)
+
         if terminal:
             reward = -1
+            self.steps_plots = 0
+            self.probs-=1
+            print(self.probs, self.max_fru)
+            if self.probs == 0:
+                for i in range(len(self.output_arr)):
+                    self.output_plot.write(str(i) + ';' + str(np.mean(self.output_arr[i]))+'\n')
+                self.output_plot.close
+                exit(0)
             
         self.terminal = terminal
         state = self.observation()
@@ -52,17 +74,20 @@ class Environment:
         return state, reward, terminal
 
     def full_step_neat(self, action):
+        
+        
 
         fruit_eaten = self.eat_fruit_if_possible()
         reward = 1 if fruit_eaten else 0
         
         terminal = not self.step(action)
-        
+
         if terminal:
             reward = -1
             
         self.terminal = terminal
         state = self.observation2()
+
 
         return state, reward, terminal, fruit_eaten
 

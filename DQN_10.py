@@ -358,7 +358,7 @@ class DQN_play(BaseGameModel):
         BaseGameModel.move(self, environment) 
         state = torch.tensor((environment.state())).float()
         vixod=self.model.action_choice(state=state, epsilon=0, model=self.model.model)
-        print(vixod)
+        # print(vixod)
         return self.action_all[vixod]
 
 print(f"Введите режим 0-если обучение, 1-если игра")
@@ -374,6 +374,7 @@ if a==0:
     epochs=500000,
     batch_size=16,
     memory_size=8000)
+    
     agent.load_model()
     agent.train()
 if a==1:

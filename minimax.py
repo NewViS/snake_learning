@@ -1,5 +1,6 @@
 import random
 import copy
+import math
 from game import Game
 from constants import Constants
 from base_game_model import BaseGameModel
@@ -44,15 +45,23 @@ class MiniMax(BaseGameModel):
             score = [rew, 1]
             # directs[i] = score[0]/score[1]
             if not(done) and not(eat):   
-                for j in range(20):
+                for j in range(10):
                     ENV = copy.deepcopy(env)
                     # score = [0, 0]
-                    for k in range(50):
+                    for k in range(20):
                         
                         st, rew, done, eat = ENV.full_step_neat(random.choice(ENV.possible_actions_for_current_action(ENV.snake_action)))
+                        
+                        # if(eat):
+                        #     if ENV.snake_length==1:
+                        #         size = 2
+                        #     else:
+                        #         size=ENV.snake_length
+                        #     rew += math.log(((size) + dist)/((size)+ next_observ[8])) / math.log(size)
+
                         score[0]+=rew
                         score[1]+=1
-                        # print(score)
+                        
                         if done or eat:
                             break
             
@@ -63,8 +72,12 @@ class MiniMax(BaseGameModel):
 
 while True:
     Game(game_model=MiniMax(),
-        fps=Constants.FPS,
-        pixel_size=Constants.PIXEL_SIZE,
-        screen_width=Constants.SCREEN_WIDTH,
-        screen_height=Constants.SCREEN_HEIGHT+Constants.NAVIGATION_BAR_HEIGHT,
-        navigation_bar_height=Constants.NAVIGATION_BAR_HEIGHT)
+    fps=Constants.FPS,
+    pixel_size=Constants.PIXEL_SIZE,
+    screen_width=Constants.SCREEN_WIDTH,
+    screen_height=Constants.SCREEN_HEIGHT+Constants.NAVIGATION_BAR_HEIGHT,
+    navigation_bar_height=Constants.NAVIGATION_BAR_HEIGHT)
+
+# model=BaseGameModel("dqn_trainer", "dqn_trainer", "dqn_trainer")
+#     agent = MiniMax(
+    

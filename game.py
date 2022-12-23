@@ -40,9 +40,9 @@ class Game:
         self.screen_objects.append(self.fruit)
 
         self.snake = SnakeScreenObject(self)
-        # self.snake.points = list(map(lambda x: self._screen_normalized_point(x), self.environment.set_snake()))
+        #self.snake.points = list(map(lambda x: self._screen_normalized_point(x), self.environment.set_snake()))
         self.screen_objects.append(self.snake)
-        # 
+        
         self.head = HeadScreenObject(self)
         self.head.points = list(map(lambda x: self._screen_normalized_point(x), self.environment.set_snake()))
         self.screen_objects.append(self.head)

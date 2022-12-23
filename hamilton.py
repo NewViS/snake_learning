@@ -6,6 +6,7 @@ from game import Game
 from constants import Constants
 
 
+
 class Hamilton(BaseGameModel):
 
     hamilton_path = []
@@ -45,10 +46,10 @@ class Hamilton(BaseGameModel):
         self.hamilton_path = longest_path_solver.longest_path(head, tail, environment)
         return self.hamilton_path
 
-while True:
-    Game(game_model=Hamilton(),
-        fps=Constants.FPS,
-        pixel_size=Constants.PIXEL_SIZE,
-        screen_width=Constants.SCREEN_WIDTH,
-        screen_height=Constants.SCREEN_HEIGHT+Constants.NAVIGATION_BAR_HEIGHT,
-        navigation_bar_height=Constants.NAVIGATION_BAR_HEIGHT)
+# while True:
+Game(game_model=Hamilton(),
+    fps=Constants.FPS,
+    pixel_size=Constants.PIXEL_SIZE,
+    screen_width=Constants.SCREEN_WIDTH,
+    screen_height=Constants.SCREEN_HEIGHT+Constants.NAVIGATION_BAR_HEIGHT,
+    navigation_bar_height=Constants.NAVIGATION_BAR_HEIGHT)
