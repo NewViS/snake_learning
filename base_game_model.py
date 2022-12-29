@@ -15,11 +15,6 @@ class BaseGameModel:
 
     transposition_table = {}
 
-    def __init__(self, long_name, short_name, abbreviation):
-        self.abbreviation = abbreviation
-        self.long_name = long_name
-        self.short_name = short_name
-
     def move(self, environment):
         self.starting_node = Node(environment.snake[0])
         self.starting_node.action = environment.snake_action

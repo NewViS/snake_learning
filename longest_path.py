@@ -4,12 +4,7 @@ from node import Node
 from action import Action
 from base_game_model import BaseGameModel
 from bfs import ShortestPathBFSSolver
-
-
 class LongestPathSolver(BaseGameModel):
-
-    def __init__(self):
-        BaseGameModel.__init__(self, "Longest Path", "longest_path", "lp")
 
     def move(self, environment):
         BaseGameModel.move(self, environment)

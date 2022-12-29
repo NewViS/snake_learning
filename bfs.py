@@ -1,14 +1,11 @@
 from point import Point
 from tile import Tile
 from node import Node
-from queue import Queue
+from queue1 import Queue
 from base_game_model import BaseGameModel
 
 
 class ShortestPathBFSSolver(BaseGameModel):
-
-    def __init__(self):
-        BaseGameModel.__init__(self, "Shortest Path BFS", "shortest_path_bfs", "spb")
 
     def move(self, environment):
         BaseGameModel.move(self, environment)

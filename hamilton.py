@@ -2,6 +2,8 @@ from point import Point
 from node import Node
 from base_game_model import BaseGameModel
 from longest_path import LongestPathSolver
+from game import Game
+from constants import Constants
 
 
 class Hamilton(BaseGameModel):
@@ -9,7 +11,7 @@ class Hamilton(BaseGameModel):
     hamilton_path = []
 
     def __init__(self):
-        BaseGameModel.__init__(self, "Hamilton", "hamilton", "ha")
+        self.long_name = 'Hamilton'
 
     def move(self, environment):
         BaseGameModel.move(self, environment)
@@ -42,3 +44,11 @@ class Hamilton(BaseGameModel):
         longest_path_solver = LongestPathSolver()
         self.hamilton_path = longest_path_solver.longest_path(head, tail, environment)
         return self.hamilton_path
+
+while True:
+    Game(game_model=Hamilton(),
+        fps=Constants.FPS,
+        pixel_size=Constants.PIXEL_SIZE,
+        screen_width=Constants.SCREEN_WIDTH,
+        screen_height=Constants.SCREEN_HEIGHT+Constants.NAVIGATION_BAR_HEIGHT,
+        navigation_bar_height=Constants.NAVIGATION_BAR_HEIGHT)
