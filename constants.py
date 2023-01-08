@@ -1,7 +1,7 @@
 class Constants:
 
-    SLITHERIN_NAME = "Slitherin"
-    ICON_PATH = "./assets/slitherin_icon.png"
+    SLITHERIN_NAME = "Snake"
+    ICON_PATH = "./assets/snake_icon.png"
     FONT = "Arial"
     MODEL_FEATURE_COUNT = 5 #[action_vector, left_neighbor_accessible, top_neighbor_accessible, right_point_accessible, self.get_angle_from_fruit()]
     MODEL_NAME = "model.tflearn"

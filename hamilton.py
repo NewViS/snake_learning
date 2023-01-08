@@ -41,6 +41,8 @@ class Hamilton(BaseGameModel):
         tail = Node(tail_point)
         if self.hamilton_path:
             return self.hamilton_path
+        #выше инициализиуруем стартовую позицию головы и хвоста(так при длине = 1 хвоста нет берется задняя для головы клетка)
+        #ищем самый длинный путь от головы до хвоста)
         longest_path_solver = LongestPathSolver()
         self.hamilton_path = longest_path_solver.longest_path(head, tail, environment)
         return self.hamilton_path

@@ -13,8 +13,8 @@ class MiniMax(BaseGameModel):
 
     def __init__(self):
         self.long_name = 'Monte Carlo'
-
-    def move(self, environment):                           #correct move
+    #выбор действия
+    def move(self, environment):
         global iterate
         iterate = ITER
         act = self._run2(copy.deepcopy(environment))
@@ -39,32 +39,30 @@ class MiniMax(BaseGameModel):
                         return out
                 out+=1
 
-
+    #основной алгоритм
     def _run2(self, environment):
         directs = [0, 0, 0]
         acts = environment.possible_actions_for_current_action(environment.snake_action)
+        #здесь начинается симуляция во все три стороны 
         for i in range(3):
             score = [0, 0]
             env = copy.deepcopy(environment)
+            #в подобных строчках кода происходит оценка текущего состояния и проверяется находится ли "змейка" в терминальном состояние
             st, rew, done, eat = env.full_step_neat(acts[i])
             score = [rew, 1]
-            # directs[i] = score[0]/score[1]
             if not(done) and not(eat):   
+                #углубление по дереву
                 for j in range(10):
                     ENV = copy.deepcopy(env)
-                    # score = [0, 0]
                     for k in range(50):
                         
                         st, rew, done, eat = ENV.full_step_neat(random.choice(ENV.possible_actions_for_current_action(ENV.snake_action)))
                         score[0]+=rew
                         score[1]+=1
-                        # print(score)
                         if done or eat:
                             break
-            
-            directs[i] = score[0]/score[1]
-            # print(score, directs)
-        # print(directs)           
+        #выбор самого выгодного действия    
+            directs[i] = score[0]/score[1]  
         return acts[self.find_index(directs)]
 
 while True:

@@ -1,9 +1,7 @@
 import pygame
 import sys
-from objects import SnakeScreenObject, FruitScreenObject, WallScreenObject, HeadScreenObject
 from pygame.locals import *
 from point import Point
-from color import Color
 from action import Action
 from constants import Constants
 from environment import Environment

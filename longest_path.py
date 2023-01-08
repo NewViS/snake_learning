@@ -17,6 +17,7 @@ class LongestPathSolver(BaseGameModel):
                 return longest_path[index+1].action
         return environment.snake_action
 
+    #длинейший путь создается путем нахождения самого короткого пути между головой и хвостом, а затем дальнейшим расширениемэто пути на 1 или 2 клетки
     def longest_path(self, start, end, environment):
         longest_path_from_transposition_table = self._path_from_transposition_table(end)
         if longest_path_from_transposition_table:
